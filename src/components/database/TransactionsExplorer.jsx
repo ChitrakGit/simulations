@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ShieldCheck,
-  AlertTriangle,
-  RotateCcw,
-  Zap,
-  Activity,
-  Layers,
-  ArrowRight,
-  Database,
-  Lock,
-  Clock,
-  CheckCircle2
+  ShieldCheck
 } from 'lucide-react';
 import { TRANSACTIONS_DATA } from '../../data/databaseData';
 

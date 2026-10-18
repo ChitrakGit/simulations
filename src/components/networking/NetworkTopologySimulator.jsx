@@ -15,13 +15,10 @@ import {
   RotateCcw,
   ChevronRight,
   ChevronLeft,
-  ArrowRight,
-  ShieldCheck,
   Radio,
   Share2,
   Cpu,
   Layers,
-  Terminal,
   Info
 } from 'lucide-react';
 

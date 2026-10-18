@@ -3,7 +3,6 @@ import MainNavigation from './components/navigation/MainNavigation';
 import SimuCoreHubHome from './components/navigation/SimuCoreHubHome';
 import SuspenseLoader from './components/common/SuspenseLoader';
 import { DOCKER_COMMANDS } from './data/dockerCommands';
-import { Box, Cpu, Terminal, Layers } from 'lucide-react';
 
 // Dynamic lazy-loaded modules for per-user-selection dynamic rendering
 const Header = lazy(() => import('./components/Header'));

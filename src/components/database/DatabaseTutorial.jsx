@@ -1,9 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
   BookOpen,
-  CheckCircle2,
-  Copy,
-  Check,
   Search,
   ArrowRight,
   ArrowLeft,
@@ -11,31 +8,20 @@ import {
   Sliders,
   Database,
   Layers,
-  Activity,
   GitBranch,
   Boxes,
-  ShieldCheck,
   Cpu,
   Clock,
   Sparkles,
-  ExternalLink,
-  Code2,
-  AlertTriangle,
-  Lightbulb,
   CheckSquare,
   Square,
   Server,
-  ChevronDown,
-  ChevronUp,
-  HelpCircle,
-  RefreshCw
+  HelpCircle
 } from 'lucide-react';
 import {
   DATABASE_TUTORIAL_LEVELS,
-  DATABASE_TUTORIAL_CHAPTERS,
-  DATABASE_SHARDING_TUTORIAL_QA
+  DATABASE_TUTORIAL_CHAPTERS
 } from '../../data/databaseTutorialData';
-import { DATABASE_ENGINES } from '../../data/databaseData';
 import DatabaseShardingQA from './DatabaseShardingQA';
 
 function MarkdownContentRenderer({ text }) {
@@ -380,7 +366,6 @@ export default function DatabaseTutorial({ onNavigateToTab, activeEngine = 'sql'
   const [selectedLevel, setSelectedLevel] = useState('all'); // 'all' | 'basic' | 'intermediate' | 'advanced'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChapId, setSelectedChapId] = useState(DATABASE_TUTORIAL_CHAPTERS[0].id);
-  const [copiedKey, setCopiedKey] = useState(null);
   const [completedChapters, setCompletedChapters] = useState({ 'ch-1': true });
 
   // Interactive Widget 1: HikariCP Connection Pool Calculator
@@ -404,42 +389,6 @@ export default function DatabaseTutorial({ onNavigateToTab, activeEngine = 'sql'
 
   // Interactive Q&A Mode State
   const [tutorialTabMode, setTutorialTabMode] = useState('curriculum'); // 'curriculum' | 'sharding_qa'
-  const [expandedQAs, setExpandedQAs] = useState({ 'qa-1': true, 'qa-7': true }); // default expand Q1 & Q7
-  const [masteredQAs, setMasteredQAs] = useState({});
-  const [selectedQACategory, setSelectedQACategory] = useState('all');
-
-  const toggleQAExpand = (id) => {
-    setExpandedQAs(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
-  const toggleQAMastered = (id, e) => {
-    e.stopPropagation();
-    setMasteredQAs(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
-  const expandAllQAs = () => {
-    const all = {};
-    DATABASE_SHARDING_TUTORIAL_QA.forEach(q => { all[q.id] = true; });
-    setExpandedQAs(all);
-  };
-
-  const collapseAllQAs = () => {
-    setExpandedQAs({});
-  };
-
-  const filteredQAs = useMemo(() => {
-    if (selectedQACategory === 'all') return DATABASE_SHARDING_TUTORIAL_QA;
-    return DATABASE_SHARDING_TUTORIAL_QA.filter(q => q.category.toLowerCase() === selectedQACategory.toLowerCase());
-  }, [selectedQACategory]);
-
-  const masteredCount = Object.values(masteredQAs).filter(Boolean).length;
-  const masteredPct = Math.round((masteredCount / DATABASE_SHARDING_TUTORIAL_QA.length) * 100);
 
   // Filter chapters based on Level and Search
   const filteredChapters = useMemo(() => {
@@ -467,12 +416,6 @@ export default function DatabaseTutorial({ onNavigateToTab, activeEngine = 'sql'
   }, [selectedChapId, filteredChapters]);
 
   const currentIdx = DATABASE_TUTORIAL_CHAPTERS.findIndex(c => c.id === currentChapter.id);
-
-  const handleCopy = (text, key) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
 
   const toggleChapterComplete = (id, e) => {
     e.stopPropagation();
@@ -683,7 +626,6 @@ export default function DatabaseTutorial({ onNavigateToTab, activeEngine = 'sql'
     };
   }, []);
 
-  const activeEngineObj = DATABASE_ENGINES.find(e => e.id === activeEngine) || DATABASE_ENGINES[0];
   const enginePerspective = getEngineChapterNote(currentChapter.id, activeEngine);
 
   return (
@@ -1117,7 +1059,6 @@ export default function DatabaseTutorial({ onNavigateToTab, activeEngine = 'sql'
             setSelectedChapId(chapId);
           }}
           onNavigateToTab={onNavigateToTab}
-          activeEngine={activeEngine}
         />
       ) : (
         <div style={{

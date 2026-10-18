@@ -8,17 +8,13 @@ import {
   Box,
   Server,
   Layers,
-  Sparkles,
-  Lock,
   Boxes,
   Network,
-  Home,
   X,
   Activity,
   GitBranch,
   ShieldCheck,
-  BookOpen,
-  Maximize2
+  BookOpen
 } from 'lucide-react';
 
 export default function MainNavigation({

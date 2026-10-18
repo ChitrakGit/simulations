@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Database,
-  Server,
   Layers,
   Activity,
   GitBranch,
@@ -9,9 +8,7 @@ import {
   ShieldCheck,
   Search,
   BookOpen,
-  Sliders,
   Boxes,
-  Zap,
   Network
 } from 'lucide-react';
 import { DATABASE_ENGINES } from '../../data/databaseData';

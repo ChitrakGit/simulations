@@ -6,14 +6,8 @@ import {
   Globe,
   Cpu,
   Box,
-  Layers,
   Sparkles,
-  Zap,
   ArrowRight,
-  ShieldCheck,
-  Server,
-  Activity,
-  Terminal,
   Compass
 } from 'lucide-react';
 

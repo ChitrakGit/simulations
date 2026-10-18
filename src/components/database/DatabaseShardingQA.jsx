@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import {
-  HelpCircle,
   CheckCircle2,
   CheckSquare,
   Square,
@@ -11,21 +10,15 @@ import {
   Zap,
   Lightbulb,
   Search,
-  Server,
   Layers,
   ArrowRight,
-  BookOpen,
-  RefreshCw,
-  GitBranch,
-  ShieldCheck,
-  Activity
+  BookOpen
 } from 'lucide-react';
 import { DATABASE_SHARDING_TUTORIAL_QA } from '../../data/databaseTutorialData';
 
 export default function DatabaseShardingQA({
   onSelectChapter,
-  onNavigateToTab,
-  activeEngine = 'mongodb'
+  onNavigateToTab
 }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');

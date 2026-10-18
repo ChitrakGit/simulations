@@ -1,18 +1,9 @@
 import React, { useState } from 'react';
 import { NETWORK_PROTOCOLS } from '../../data/networkingData';
 import {
-  Radio,
   CheckCircle2,
-  ArrowRight,
-  ArrowLeft,
-  ArrowDown,
-  Layers,
-  Shield,
   Activity,
-  Terminal,
-  Clock,
-  Zap,
-  Info
+  Terminal
 } from 'lucide-react';
 
 export default function ProtocolVisualizer() {

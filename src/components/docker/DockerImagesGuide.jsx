@@ -3,16 +3,10 @@ import {
   Layers,
   HardDrive,
   Sparkles,
-  Zap,
   Copy,
   Check,
-  FileCode,
-  Shield,
-  ArrowRight,
   TrendingDown,
-  CheckCircle2,
   AlertTriangle,
-  FolderTree,
   Package
 } from 'lucide-react';
 

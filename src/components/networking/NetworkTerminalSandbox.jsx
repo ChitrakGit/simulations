@@ -6,11 +6,7 @@ import {
   Copy,
   Check,
   RotateCcw,
-  Sparkles,
-  Info,
-  Radio,
-  Clock,
-  Cpu
+  Info
 } from 'lucide-react';
 
 export default function NetworkTerminalSandbox() {

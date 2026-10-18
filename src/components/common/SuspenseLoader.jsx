@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, Layers, Cpu, Sparkles } from 'lucide-react';
+import { Loader2, Layers } from 'lucide-react';
 
 export default function SuspenseLoader({ label = 'Loading Simulation Module...', sub = 'Dynamically streaming component assets & execution engines' }) {
   return (

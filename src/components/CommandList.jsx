@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { 
-  Play, 
   Copy, 
   Check, 
-  Terminal, 
   Info, 
   Filter, 
-  ArrowRight,
-  Zap,
-  Tag
+  Zap
 } from 'lucide-react';
 import { CATEGORIES } from '../data/dockerCommands';
 

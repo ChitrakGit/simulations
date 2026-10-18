@@ -7,15 +7,11 @@ import {
   HardDrive, 
   Activity, 
   Terminal, 
-  Check, 
-  Zap,
   Server,
   Box,
   Monitor,
   Laptop,
-  Cable,
-  ArrowRight,
-  CheckCircle2
+  Cable
 } from 'lucide-react';
 
 export default function ArchitectureExplorer() {

@@ -5,10 +5,8 @@ import {
   Layers,
   Server,
   Search,
-  Activity,
   Shield,
   Box,
-  Code2,
   Network,
   BookOpen
 } from 'lucide-react';

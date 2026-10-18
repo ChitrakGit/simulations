@@ -18,20 +18,8 @@ import {
   RotateCcw,
   ChevronRight,
   ChevronLeft,
-  Activity,
-  Layers,
-  Database,
-  Server,
-  Cpu,
-  ShieldCheck,
-  Zap,
-  Info,
   Maximize2,
-  Minimize2,
   X,
-  Sliders,
-  CheckCircle2,
-  GitBranch,
   Network
 } from 'lucide-react';
 
@@ -466,7 +454,7 @@ export default function DatabaseXYFlowSimulator({ activeEngine = 'sql' }) {
   const [viewMode, setViewMode] = useState('xyflow'); // 'xyflow' | 'stepper'
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1); // 0.5x, 1x, 2x
+  const speed = 1;
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Synchronize scenario when database engine changes

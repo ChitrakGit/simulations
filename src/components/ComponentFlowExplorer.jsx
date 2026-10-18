@@ -15,22 +15,20 @@ import {
   Activity,
   Play,
   Pause,
-  SkipForward,
   RotateCcw,
   ArrowRight,
   CheckCircle2,
-  Info,
   Copy,
   Check,
   Share2,
-  Sliders,
-  ExternalLink
+  Sliders
 } from 'lucide-react';
 import {
   DOCKER_COMPONENTS,
   INTERACTION_FLOWS,
   COMPONENT_ZONES
 } from '../data/dockerComponentsData';
+import SuspenseLoader from './common/SuspenseLoader';
 
 // Map icon strings to Lucide components
 const ICON_MAP = {
@@ -48,7 +46,7 @@ const ICON_MAP = {
   Cpu: Cpu,
   Activity: Activity
 };
-import SuspenseLoader from './common/SuspenseLoader';
+
 const DockerXYFlowSimulator = React.lazy(() => import('./docker/DockerXYFlowSimulator'));
 
 export default function ComponentFlowExplorer() {

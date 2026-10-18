@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Layers,
-  Table,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
-  ShieldCheck,
-  FileCode,
-  Sparkles,
-  Info
+  Table
 } from 'lucide-react';
 import { NORMALIZATION_DATA } from '../../data/databaseData';
 

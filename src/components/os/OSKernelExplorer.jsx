@@ -1,25 +1,13 @@
 import React, { useState } from 'react';
 import {
   Terminal,
-  Cpu,
-  Layers,
-  HardDrive,
   Network,
-  Shield,
   Activity,
-  Code2,
   FolderTree,
   ChevronRight,
-  ChevronDown,
   Copy,
   Check,
-  Search,
-  ExternalLink,
-  BookOpen,
-  Sparkles,
-  Command,
-  Wrench,
-  Boxes
+  Command
 } from 'lucide-react';
 
 import { OS_FLAVORS } from '../../data/osData';
@@ -28,7 +16,6 @@ export default function OSKernelExplorer({ activeOS = 'linux', setActiveOS }) {
   const [selectedSubsystem, setSelectedSubsystem] = useState('kernel');
   const [selectedTopicId, setSelectedTopicId] = useState('syscalls');
   const [copiedId, setCopiedId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const currentOSData = OS_FLAVORS.find(o => o.id === activeOS) || OS_FLAVORS[0];
 

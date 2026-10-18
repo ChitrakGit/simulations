@@ -1,32 +1,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Server,
-  Globe,
   Shield,
   Activity,
   Network,
-  ArrowRight,
   Check,
   Copy,
   RefreshCw,
   Zap,
-  Cpu,
   Layers,
-  Sliders,
-  AlertTriangle,
-  CheckCircle2,
-  Lock,
-  Unlock,
   Play,
-  Terminal,
-  BookOpen,
-  ChevronDown,
-  ChevronUp,
-  Radio,
-  HelpCircle,
-  HardDrive,
-  Compass,
-  Award
+  BookOpen
 } from 'lucide-react';
 
 export default function AdvancedProxyLoadBalancerView({ onNavigateToTutorial }) {
@@ -37,7 +21,7 @@ export default function AdvancedProxyLoadBalancerView({ onNavigateToTutorial }) 
   const [simMode, setSimMode] = useState('load-balancer'); // 'forward-proxy' | 'reverse-proxy' | 'load-balancer'
   const [lbAlgorithm, setLbAlgorithm] = useState('round-robin'); // 'round-robin' | 'weighted' | 'least-conn' | 'ip-hash' | 'random'
   const [stickySessions, setStickySessions] = useState(false);
-  const [selectedClientIp, setSelectedClientIp] = useState('203.0.113.19');
+  const selectedClientIp = '203.0.113.19';
   const [clientPath, setClientPath] = useState('/api/users');
 
   // Backend server cluster states
@@ -56,7 +40,7 @@ export default function AdvancedProxyLoadBalancerView({ onNavigateToTutorial }) 
   // Forward Proxy Simulator State
   const [fpTestUrl, setFpTestUrl] = useState('https://news.ycombinator.com');
   const [fpCachedUrls, setFpCachedUrls] = useState(['https://news.ycombinator.com', 'https://wikipedia.org']);
-  const [fpBlockedDomains, setFpBlockedDomains] = useState(['facebook.com', 'tiktok.com', 'gambling.net']);
+  const fpBlockedDomains = ['facebook.com', 'tiktok.com', 'gambling.net'];
   const [fpTrace, setFpTrace] = useState(null);
 
   // Copy helper

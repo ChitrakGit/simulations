@@ -14,33 +14,22 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import {
-  Cpu,
   HardDrive,
   Network,
   Terminal,
   Activity,
   Layers,
-  ShieldCheck,
-  Radio,
   Zap,
   Play,
   Pause,
   RotateCcw,
   ChevronRight,
   ChevronLeft,
-  ArrowRight,
   CheckCircle2,
-  Info,
   Maximize2,
-  Minimize2,
   X,
-  Copy,
-  Check,
-  Sliders,
-  Server,
   Cable,
-  Boxes,
-  Monitor
+  Boxes
 } from 'lucide-react';
 
 import { OS_SIMULATION_SCENARIOS, HARDWARE_COMPONENTS } from '../../data/osData';
@@ -286,7 +275,6 @@ export default function OSMotherboardSimulator({ activeOS = 'linux' }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [selectedComponentId, setSelectedComponentId] = useState('hw-cpu');
-  const [copiedInfo, setCopiedInfo] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Handle ESC key for exiting full screen

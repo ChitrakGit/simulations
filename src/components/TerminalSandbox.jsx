@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Terminal as TerminalIcon, Play, Zap, HelpCircle, ArrowRight, CornerDownLeft } from 'lucide-react';
+import { Zap, CornerDownLeft } from 'lucide-react';
 
 export default function TerminalSandbox({ allCommands, onSelectAndSimulate }) {
   const [inputCommand, setInputCommand] = useState('');

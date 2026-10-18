@@ -2,39 +2,22 @@ import React, { useState, useMemo } from 'react';
 import {
   BookOpen,
   Terminal,
-  Cpu,
   Layers,
   Server,
   Globe,
   Network,
   Shield,
-  Activity,
   CheckCircle2,
   Copy,
   Check,
-  ArrowRight,
-  Monitor,
-  Laptop,
   Zap,
-  Clock,
   Radio,
   Router,
   Search,
-  Lock,
   Sliders,
   Share2,
-  FileCode,
-  ExternalLink,
-  HelpCircle,
-  Hash,
   ChevronDown,
-  ChevronUp,
-  AlertTriangle,
-  Play,
-  RefreshCw,
-  Compass,
-  Bookmark,
-  Award
+  ChevronUp
 } from 'lucide-react';
 
 export default function NetworkingTutorial({ onNavigateToSimulator }) {
@@ -76,12 +59,6 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
 
   // Ch 12: Security attack selector
   const [selectedAttack, setSelectedAttack] = useState('arp-spoof');
-
-  // Ch 14: BGP route decision tester
-  const [bgpWeightA, setBgpWeightA] = useState(100);
-  const [bgpWeightB, setBgpWeightB] = useState(100);
-  const [bgpLocalPrefA, setBgpLocalPrefA] = useState(200);
-  const [bgpLocalPrefB, setBgpLocalPrefB] = useState(100);
 
   // Ch 15: STP root election
   const [switchPriorityA, setSwitchPriorityA] = useState(32768);

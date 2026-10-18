@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   GitBranch,
-  Layers,
-  Search,
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  ArrowRight,
-  Database,
-  Cpu,
-  Zap,
-  Sliders,
-  Info
+  Search
 } from 'lucide-react';
 import { INDEXING_DATA } from '../../data/databaseData';
 

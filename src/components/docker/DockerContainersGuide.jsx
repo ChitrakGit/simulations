@@ -8,20 +8,11 @@ import {
   Shield,
   Copy,
   Check,
-  AlertOctagon,
-  ArrowRight,
   Terminal,
-  Zap,
-  Lock,
-  Play,
-  Pause,
-  Square,
-  RefreshCw,
   Sliders,
   Globe,
   Share2,
-  AlertTriangle,
-  Eye
+  AlertTriangle
 } from 'lucide-react';
 
 export default function DockerContainersGuide() {
@@ -31,8 +22,6 @@ export default function DockerContainersGuide() {
   const [selectedNetMode, setSelectedNetMode] = useState('bridge'); // 'bridge' | 'host' | 'none' | 'container'
   const [allocRam, setAllocRam] = useState(512);
   const [allocCpus, setAllocCpus] = useState(1.5);
-  const [readOnlyStorage, setReadOnlyStorage] = useState(true);
-  const [dropCaps, setDropCaps] = useState(true);
 
   const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text);

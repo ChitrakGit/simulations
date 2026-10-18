@@ -3,13 +3,8 @@ import {
   Copy, 
   Check, 
   Zap, 
-  HelpCircle, 
   Terminal, 
-  Cpu, 
-  AlertTriangle, 
-  Lightbulb,
-  Layers,
-  ArrowRight
+  Lightbulb
 } from 'lucide-react';
 
 export default function CommandDetails({ command, onLaunchSimulation }) {

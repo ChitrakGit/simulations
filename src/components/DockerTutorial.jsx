@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import {
-  BookOpen,
   Terminal,
-  Cpu,
   Layers,
   Server,
-  HardDrive,
   Shield,
-  Activity,
   CheckCircle2,
   Copy,
   Check,

@@ -1,19 +1,11 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   Cpu,
-  Layers,
-  Terminal,
-  Activity,
-  HardDrive,
   Network,
-  Shield,
   BookOpen,
   ChevronLeft,
   ChevronRight,
   Zap,
-  Cable,
-  Boxes,
-  Sliders,
   FolderTree
 } from 'lucide-react';
 

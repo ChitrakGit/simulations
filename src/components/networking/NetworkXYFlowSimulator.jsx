@@ -6,15 +6,12 @@ import {
   Background,
   useNodesState,
   useEdgesState,
-  MarkerType,
   Handle,
-  Position,
-  Panel
+  Position
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import {
-  Laptop,
   Network,
   Router,
   Globe,
@@ -25,21 +22,11 @@ import {
   RotateCcw,
   ChevronRight,
   ChevronLeft,
-  ArrowRight,
-  ShieldCheck,
   Radio,
-  Share2,
-  Cpu,
-  Layers,
-  Terminal,
-  Info,
   Sliders,
-  CheckCircle2,
-  Copy,
   Zap,
   Activity,
   Maximize2,
-  Minimize2,
   X
 } from 'lucide-react';
 
@@ -269,7 +256,6 @@ export default function NetworkXYFlowSimulator() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [selectedNodeData, setSelectedNodeData] = useState(null);
-  const [copiedSnippet, setCopiedSnippet] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Handle ESC key for exiting full screen
@@ -294,12 +280,6 @@ export default function NetworkXYFlowSimulator() {
       document.body.style.overflow = 'auto';
     };
   }, [isFullscreen]);
-
-  const copyToClipboard = (text, id) => {
-    navigator.clipboard.writeText(text);
-    setCopiedSnippet(id);
-    setTimeout(() => setCopiedSnippet(null), 2000);
-  };
 
   // Scenario 1: Complete Web Request (DNS + TCP + TLS + HTTP)
   const SCENARIO_WEB_REQUEST = useMemo(() => {

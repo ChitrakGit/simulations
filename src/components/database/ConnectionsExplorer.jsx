@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Cpu,
-  Server,
-  Layers,
-  Activity,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
-  Code2,
-  Sliders,
-  Terminal,
-  ShieldCheck,
-  Zap
+  Server
 } from 'lucide-react';
 import { CONNECTIONS_DATA } from '../../data/databaseData';
 

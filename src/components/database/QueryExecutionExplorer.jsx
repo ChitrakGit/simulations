@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Activity,
-  Layers,
-  GitBranch,
-  Terminal,
-  Zap,
-  Info,
-  CheckCircle2,
-  AlertTriangle,
-  ArrowRight,
-  Sliders,
-  Database,
-  Boxes
+  Activity
 } from 'lucide-react';
 import { QUERY_EXECUTION_DATA } from '../../data/databaseData';
 

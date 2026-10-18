@@ -3,19 +3,13 @@ import { SUBNET_PRESETS } from '../../data/networkingData';
 import {
   Sliders,
   Binary,
-  Layers,
   Network,
-  Info,
-  CheckCircle2,
-  Box,
-  Copy,
-  Check
+  Box
 } from 'lucide-react';
 
 export default function SubnetCalculator() {
   const [ipInput, setIpInput] = useState('192.168.1.0');
   const [selectedCidr, setSelectedCidr] = useState(24);
-  const [copied, setCopied] = useState(false);
 
   // Compute subnet math
   const subnetMath = useMemo(() => {
@@ -79,12 +73,6 @@ export default function SubnetCalculator() {
       binaryMask
     };
   }, [ipInput, selectedCidr]);
-
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

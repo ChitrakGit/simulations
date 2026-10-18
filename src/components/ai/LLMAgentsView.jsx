@@ -1,21 +1,8 @@
 import React, { useState } from 'react';
 import {
   Bot,
-  Brain,
-  Sparkles,
   Search,
-  Database,
-  ArrowRight,
-  Terminal,
-  Play,
-  RotateCcw,
-  CheckCircle2,
-  FileText,
-  Key,
-  Layers,
-  Code2,
-  Zap,
-  Info
+  Database
 } from 'lucide-react';
 
 export default function LLMAgentsView() {

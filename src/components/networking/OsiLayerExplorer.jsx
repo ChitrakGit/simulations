@@ -1,20 +1,10 @@
 import React, { useState } from 'react';
 import { OSI_LAYERS } from '../../data/networkingData';
 import {
-  Layers,
   ArrowDown,
   ArrowUp,
-  Cpu,
-  ShieldCheck,
   Terminal,
-  Activity,
-  Server,
-  Radio,
-  FileCode,
-  CheckCircle2,
-  HelpCircle,
-  Hash,
-  Share2
+  Hash
 } from 'lucide-react';
 
 export default function OsiLayerExplorer() {

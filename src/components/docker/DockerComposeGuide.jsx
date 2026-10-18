@@ -6,14 +6,7 @@ import {
   Shield,
   Terminal,
   Copy,
-  Check,
-  Zap,
-  Lock,
-  Layers,
-  ArrowRight,
-  Server,
-  Key,
-  FolderTree
+  Check
 } from 'lucide-react';
 
 export default function DockerComposeGuide() {

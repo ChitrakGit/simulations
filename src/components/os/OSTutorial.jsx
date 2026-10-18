@@ -1,36 +1,15 @@
 import React, { useState } from 'react';
 import {
-  BookOpen,
-  Cpu,
-  Layers,
-  HardDrive,
-  Shield,
-  Activity,
-  CheckCircle2,
-  Copy,
-  Check,
   ChevronRight,
-  ArrowRight,
-  Zap,
-  Terminal,
-  Radio,
-  Sliders,
-  Boxes
+  Zap
 } from 'lucide-react';
 
-import { OS_TUTORIAL_CHAPTERS, OS_FLAVORS } from '../../data/osData';
+import { OS_TUTORIAL_CHAPTERS } from '../../data/osData';
 
 export default function OSTutorial({ onNavigateToSimulator }) {
   const [selectedChapId, setSelectedChapId] = useState(OS_TUTORIAL_CHAPTERS[0].id);
-  const [copiedKey, setCopiedKey] = useState(null);
 
   const chapter = OS_TUTORIAL_CHAPTERS.find(c => c.id === selectedChapId) || OS_TUTORIAL_CHAPTERS[0];
-
-  const handleCopy = (text, key) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

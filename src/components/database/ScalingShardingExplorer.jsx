@@ -1,17 +1,7 @@
 import React, { useState } from 'react';
 import {
   Boxes,
-  Database,
-  Server,
-  Network,
-  RotateCw,
-  Zap,
-  ShieldCheck,
-  Activity,
-  AlertTriangle,
-  ArrowRight,
-  Sliders,
-  CheckCircle2
+  Database
 } from 'lucide-react';
 import { SCALING_SHARDING_DATA } from '../../data/databaseData';
 

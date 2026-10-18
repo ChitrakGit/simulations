@@ -1,21 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  BookOpen,
-  CheckCircle2,
-  Layers,
-  ArrowRight,
-  Database,
-  ExternalLink,
-  Zap,
-  Terminal,
-  Cpu,
-  ShieldCheck,
-  Search
+  Database
 } from 'lucide-react';
-import { FUNDAMENTALS_DATA } from '../../data/databaseData';
 
-export default function DatabaseGuideRoadmap({ activeEngine = 'sql' }) {
-  const [guideFilter, setGuideFilter] = useState('');
+export default function DatabaseGuideRoadmap() {
 
   const roadmapStages = [
     {

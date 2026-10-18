@@ -13,12 +13,7 @@ import {
   Zap, 
   Activity, 
   Shield, 
-  Database,
-  Network,
-  Maximize2,
-  Sliders,
-  CheckCircle2,
-  HardDrive
+  CheckCircle2
 } from 'lucide-react';
 import { ARCHITECTURE_LAYERS } from '../data/dockerCommands';
 

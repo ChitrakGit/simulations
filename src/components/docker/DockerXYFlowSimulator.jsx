@@ -6,7 +6,6 @@ import {
   Background,
   useNodesState,
   useEdgesState,
-  MarkerType,
   Handle,
   Position,
   Panel
@@ -18,8 +17,6 @@ import {
   Server,
   Layers,
   Network,
-  Cpu,
-  HardDrive,
   Shield,
   Activity,
   Play,
@@ -27,14 +24,10 @@ import {
   SkipForward,
   RotateCcw,
   Info,
-  CheckCircle2,
   Copy,
-  Check,
   Zap,
   Globe,
-  Sliders,
   Maximize2,
-  Minimize2,
   X
 } from 'lucide-react';
 
@@ -227,7 +220,6 @@ export default function DockerXYFlowSimulator() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedNodeData, setSelectedNodeData] = useState(null);
-  const [copiedSnippet, setCopiedSnippet] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Handle ESC key for exiting full screen
@@ -252,12 +244,6 @@ export default function DockerXYFlowSimulator() {
       document.body.style.overflow = 'auto';
     };
   }, [isFullscreen]);
-
-  const copyToClipboard = (text, id) => {
-    navigator.clipboard.writeText(text);
-    setCopiedSnippet(id);
-    setTimeout(() => setCopiedSnippet(null), 2000);
-  };
 
   // Scenario 1: Docker Ingress Networking & Port Forwarding
   const NETWORKING_SCENARIO = useMemo(() => {
