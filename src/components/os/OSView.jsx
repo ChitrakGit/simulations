@@ -1,6 +1,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import OSSubHeader from './OSSubHeader';
 import SuspenseLoader from '../common/SuspenseLoader';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 // Dynamic lazy-loaded OS components to prevent webpage crashing & optimize memory
 const OSMotherboardSimulator = lazy(() => import('./OSMotherboardSimulator'));
@@ -23,6 +24,11 @@ export default function OSView() {
 
       {/* Dynamic Lazy-Loaded OS Views */}
       <div style={{ flex: 1 }}>
+        <ErrorBoundary
+          title={`Error Rendering OSCore ${activeSubTab.toUpperCase()} Module`}
+          fallbackMessage="An error occurred while loading this operating system module. The OS navigation bar remains fully accessible."
+          onReset={() => setActiveSubTab('motherboard')}
+        >
         <Suspense fallback={
           <SuspenseLoader
             label={`Streaming OSCore ${activeSubTab.toUpperCase()} Module...`}
@@ -44,6 +50,7 @@ export default function OSView() {
             }} />
           )}
         </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   );

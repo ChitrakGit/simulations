@@ -1,6 +1,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import DatabaseHeader from './DatabaseHeader';
 import SuspenseLoader from '../common/SuspenseLoader';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 // Dynamic lazy-loaded database sub-modules
 const DatabaseXYFlowSimulator = lazy(() => import('./DatabaseXYFlowSimulator'));
@@ -43,12 +44,17 @@ export default function DatabaseView({
 
       {/* Dynamic Lazy-Loaded Views */}
       <div style={{ flex: 1 }}>
-        <Suspense fallback={
-          <SuspenseLoader
-            label={`Streaming DataCore ${activeTab.toUpperCase()} Engine Module...`}
-            sub={`Compiling ${activeEngine.toUpperCase()} internals, query graphs, and architectural models`}
-          />
-        }>
+        <ErrorBoundary
+          title={`Error Rendering DataCore ${activeTab.toUpperCase()} Module`}
+          fallbackMessage="An error occurred while loading this database module. The database navigation and other chapters remain fully available."
+          onReset={() => setActiveTab('flow')}
+        >
+          <Suspense fallback={
+            <SuspenseLoader
+              label={`Streaming DataCore ${activeTab.toUpperCase()} Engine Module...`}
+              sub={`Compiling ${activeEngine.toUpperCase()} internals, query graphs, and architectural models`}
+            />
+          }>
           {activeTab === 'flow' && (
             <DatabaseXYFlowSimulator activeEngine={activeEngine} />
           )}
@@ -89,6 +95,7 @@ export default function DatabaseView({
             />
           )}
         </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   );

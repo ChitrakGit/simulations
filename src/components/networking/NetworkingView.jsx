@@ -1,6 +1,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import NetworkSubHeader from './NetworkSubHeader';
 import SuspenseLoader from '../common/SuspenseLoader';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 // Dynamic lazy-loaded components for per-selection streaming
 const NetworkTopologySimulator = lazy(() => import('./NetworkTopologySimulator'));
@@ -26,6 +27,11 @@ export default function NetworkingView() {
 
       {/* Networking Subtab Views with Dynamic Lazy Suspense */}
       <div style={{ flex: 1 }}>
+        <ErrorBoundary
+          title={`Error Rendering NetCore ${activeSubTab.toUpperCase()} Module`}
+          fallbackMessage="An error occurred while loading this networking module. The networking navigation bar remains fully accessible."
+          onReset={() => setActiveSubTab('topology')}
+        >
         <Suspense fallback={
           <SuspenseLoader
             label={`Streaming ${activeSubTab.toUpperCase()} Module...`}
@@ -36,7 +42,7 @@ export default function NetworkingView() {
           {activeSubTab === 'xyflow-simulation' && <NetworkXYFlowSimulator />}
           {activeSubTab === 'google-journey' && <GoogleWebRequestJourney />}
           {activeSubTab === 'advance' && (
-            <AdvancedProxyLoadBalancerView onNavigateToTutorial={(chapId) => {
+            <AdvancedProxyLoadBalancerView onNavigateToTutorial={(_chapId) => {
               setActiveSubTab('tutorial');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }} />
@@ -52,6 +58,7 @@ export default function NetworkingView() {
             }} />
           )}
         </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   );

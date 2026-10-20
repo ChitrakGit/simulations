@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, Suspense, lazy } from 'react';
 import MainNavigation from './components/navigation/MainNavigation';
 import SimuCoreHubHome from './components/navigation/SimuCoreHubHome';
 import SuspenseLoader from './components/common/SuspenseLoader';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { DOCKER_COMMANDS } from './data/dockerCommands';
 
 // Dynamic lazy-loaded modules for per-user-selection dynamic rendering
@@ -215,75 +216,81 @@ export default function App() {
 
           {/* Docker Main Views */}
           <main className="container-xl" style={{ flex: 1, paddingBottom: '40px' }}>
-            <Suspense fallback={
-              <SuspenseLoader
-                label={`Loading ${activeTab.toUpperCase()} View...`}
-                sub="Streaming interactive visualizers & execution sandbox"
-              />
-            }>
-              {/* SUBTAB 1: COMMANDS & DETAILED BREAKDOWN VIEW */}
-              {activeTab === 'commands' && (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'minmax(320px, 1.15fr) minmax(400px, 1.85fr)',
-                  gap: '24px',
-                  alignItems: 'start'
-                }}>
-                  {/* Left Column: Command List & Categories */}
-                  <CommandList
-                    commands={filteredCommands}
-                    selectedCommand={selectedCommand}
-                    onSelectCommand={(cmd) => setSelectedCommandId(cmd.id)}
-                    onLaunchSimulation={handleLaunchSimulation}
-                    activeCategory={selectedCategory}
-                    setActiveCategory={setSelectedCategory}
-                    activeTag={selectedTag}
-                    setActiveTag={setSelectedTag}
-                  />
+            <ErrorBoundary
+              title="Docker Simulator Error"
+              fallbackMessage="An error occurred inside the Docker tools module. You can reload or switch tabs."
+              onReset={() => setActiveTab('commands')}
+            >
+              <Suspense fallback={
+                <SuspenseLoader
+                  label={`Loading ${activeTab.toUpperCase()} View...`}
+                  sub="Streaming interactive visualizers & execution sandbox"
+                />
+              }>
+                {/* SUBTAB 1: COMMANDS & DETAILED BREAKDOWN VIEW */}
+                {activeTab === 'commands' && (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(320px, 1.15fr) minmax(400px, 1.85fr)',
+                    gap: '24px',
+                    alignItems: 'start'
+                  }}>
+                    {/* Left Column: Command List & Categories */}
+                    <CommandList
+                      commands={filteredCommands}
+                      selectedCommand={selectedCommand}
+                      onSelectCommand={(cmd) => setSelectedCommandId(cmd.id)}
+                      onLaunchSimulation={handleLaunchSimulation}
+                      activeCategory={selectedCategory}
+                      setActiveCategory={setSelectedCategory}
+                      activeTag={selectedTag}
+                      setActiveTag={setSelectedTag}
+                    />
 
-                  {/* Right Column: In-Depth Breakdown of Selected Command */}
-                  <CommandDetails
+                    {/* Right Column: In-Depth Breakdown of Selected Command */}
+                    <CommandDetails
+                      command={selectedCommand}
+                      onLaunchSimulation={handleLaunchSimulation}
+                    />
+                  </div>
+                )}
+
+                {/* SUBTAB 2: COMPONENT FLOW & ARCHITECTURE TOPOLOGY EXPLORER */}
+                {activeTab === 'components' && (
+                  <ComponentFlowExplorer />
+                )}
+
+                {/* SUBTAB 3: MULTI-LAYER EXECUTION SIMULATOR */}
+                {activeTab === 'simulator' && (
+                  <MultiLayerSimulator
                     command={selectedCommand}
-                    onLaunchSimulation={handleLaunchSimulation}
+                    allCommands={DOCKER_COMMANDS}
+                    onSelectCommand={(cmd) => setSelectedCommandId(cmd.id)}
                   />
-                </div>
-              )}
+                )}
 
-              {/* SUBTAB 2: COMPONENT FLOW & ARCHITECTURE TOPOLOGY EXPLORER */}
-              {activeTab === 'components' && (
-                <ComponentFlowExplorer />
-              )}
+                {/* SUBTAB 4: LINUX & HARDWARE ARCHITECTURE EXPLORER */}
+                {activeTab === 'architecture' && (
+                  <ArchitectureExplorer />
+                )}
 
-              {/* SUBTAB 3: MULTI-LAYER EXECUTION SIMULATOR */}
-              {activeTab === 'simulator' && (
-                <MultiLayerSimulator
-                  command={selectedCommand}
-                  allCommands={DOCKER_COMMANDS}
-                  onSelectCommand={(cmd) => setSelectedCommandId(cmd.id)}
-                />
-              )}
+                {/* SUBTAB 5: INTERACTIVE CLI TERMINAL SANDBOX */}
+                {activeTab === 'terminal' && (
+                  <TerminalSandbox
+                    allCommands={DOCKER_COMMANDS}
+                    onSelectAndSimulate={handleLaunchSimulation}
+                  />
+                )}
 
-              {/* SUBTAB 4: LINUX & HARDWARE ARCHITECTURE EXPLORER */}
-              {activeTab === 'architecture' && (
-                <ArchitectureExplorer />
-              )}
-
-              {/* SUBTAB 5: INTERACTIVE CLI TERMINAL SANDBOX */}
-              {activeTab === 'terminal' && (
-                <TerminalSandbox
-                  allCommands={DOCKER_COMMANDS}
-                  onSelectAndSimulate={handleLaunchSimulation}
-                />
-              )}
-
-              {/* SUBTAB 6: DOCKER TUTORIAL, HYPERVISOR ARCHITECTURE & INSTALLATION */}
-              {activeTab === 'tutorial' && (
-                <DockerTutorial onNavigateToSimulator={() => {
-                  setActiveTab('commands');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }} />
-              )}
-            </Suspense>
+                {/* SUBTAB 6: DOCKER TUTORIAL, HYPERVISOR ARCHITECTURE & INSTALLATION */}
+                {activeTab === 'tutorial' && (
+                  <DockerTutorial onNavigateToSimulator={() => {
+                    setActiveTab('commands');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }} />
+                )}
+              </Suspense>
+            </ErrorBoundary>
           </main>
         </Suspense>
       )}
@@ -291,51 +298,75 @@ export default function App() {
       {/* DOMAIN 2: COMPUTER NETWORKING & OSI/TCP-IP SUITE */}
       {activeDomain === 'networking' && (
         <main className="container-xl" style={{ flex: 1, paddingBottom: '40px' }}>
-          <Suspense fallback={
-            <SuspenseLoader
-              label="Streaming NetCore Networking Suite..."
-              sub="Loading OSI 7-Layer, xyflow Packet Tracer & Distributed Protocols"
-            />
-          }>
-            <NetworkingView />
-          </Suspense>
+          <ErrorBoundary
+            title="NetCore Networking Suite Error"
+            fallbackMessage="An error occurred inside the Networking module. You can reload or choose another topic."
+            onReset={() => setActiveDomain(null)}
+          >
+            <Suspense fallback={
+              <SuspenseLoader
+                label="Streaming NetCore Networking Suite..."
+                sub="Loading OSI 7-Layer, xyflow Packet Tracer & Distributed Protocols"
+              />
+            }>
+              <NetworkingView />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       )}
 
       {/* DOMAIN 3: LLM AGENTS, RAG & VECTOR EMBEDDINGS */}
       {(activeDomain === 'llm-agents' || activeDomain === 'LLM-agents-preview') && (
         <main className="container-xl" style={{ flex: 1, paddingBottom: '40px' }}>
-          <Suspense fallback={<SuspenseLoader label="Streaming AgentCore Suite..." />}>
-            <LLMAgentsView />
-          </Suspense>
+          <ErrorBoundary
+            title="AgentCore Suite Error"
+            fallbackMessage="An error occurred inside the LLM Agents module."
+            onReset={() => setActiveDomain(null)}
+          >
+            <Suspense fallback={<SuspenseLoader label="Streaming AgentCore Suite..." />}>
+              <LLMAgentsView />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       )}
 
       {/* DOMAIN 4: DATABASES, SQL & NOSQL MONGODB */}
       {(activeDomain === 'databases' || activeDomain === 'Database-preview') && (
         <main className="container-xl" style={{ flex: 1, paddingBottom: '40px' }}>
-          <Suspense fallback={<SuspenseLoader label="Streaming DataCore Suite..." />}>
-            <DatabaseView
-              activeEngine={activeDatabaseEngine}
-              setActiveEngine={setActiveDatabaseEngine}
-              activeTab={activeDatabaseTab}
-              setActiveTab={setActiveDatabaseTab}
-            />
-          </Suspense>
+          <ErrorBoundary
+            title="Database Simulator Error"
+            fallbackMessage="An error occurred inside the database module. You can reload or select another module from the top navigation."
+            onReset={() => setActiveDatabaseTab('flow')}
+          >
+            <Suspense fallback={<SuspenseLoader label="Streaming DataCore Suite..." />}>
+              <DatabaseView
+                activeEngine={activeDatabaseEngine}
+                setActiveEngine={setActiveDatabaseEngine}
+                activeTab={activeDatabaseTab}
+                setActiveTab={setActiveDatabaseTab}
+              />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       )}
 
       {/* DOMAIN 5: OPERATING SYSTEM (LINUX, WINDOWS, MACOS) & HARDWARE BUS SUITE */}
       {(activeDomain === 'os' || activeDomain === 'operating-system') && (
         <main className="container-xl" style={{ flex: 1, paddingBottom: '40px' }}>
-          <Suspense fallback={
-            <SuspenseLoader
-              label="Streaming OSCore Operating System Suite..."
-              sub="Loading Linux, Windows & macOS Kernel Internals, Motherboard Buses & Internet Card"
-            />
-          }>
-            <OSView />
-          </Suspense>
+          <ErrorBoundary
+            title="OSCore Operating System Suite Error"
+            fallbackMessage="An error occurred inside the Operating System module."
+            onReset={() => setActiveDomain(null)}
+          >
+            <Suspense fallback={
+              <SuspenseLoader
+                label="Streaming OSCore Operating System Suite..."
+                sub="Loading Linux, Windows & macOS Kernel Internals, Motherboard Buses & Internet Card"
+              />
+            }>
+              <OSView />
+            </Suspense>
+          </ErrorBoundary>
         </main>
       )}
 

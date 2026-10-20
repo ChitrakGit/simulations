@@ -14,6 +14,7 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import {
+  Cpu,
   HardDrive,
   Network,
   Terminal,

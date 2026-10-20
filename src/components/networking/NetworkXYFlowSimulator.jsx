@@ -7,11 +7,13 @@ import {
   useNodesState,
   useEdgesState,
   Handle,
-  Position
+  Position,
+  Panel
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import {
+  Laptop,
   Network,
   Router,
   Globe,

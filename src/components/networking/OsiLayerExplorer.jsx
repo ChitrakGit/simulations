@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { OSI_LAYERS } from '../../data/networkingData';
 import {
+  Layers,
   ArrowDown,
   ArrowUp,
   Terminal,
