@@ -489,13 +489,20 @@ export default function IndexingExplorer({ activeEngine = 'sql' }) {
                   border: '1px solid rgba(255, 255, 255, 0.06)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', flexWrap: 'wrap', gap: '4px' }}>
                   <span style={{ fontSize: '0.84rem', fontWeight: '800', color: '#fbbf24' }}>
                     {idx.type}
                   </span>
-                  <span style={{ fontSize: '0.64rem', fontFamily: 'var(--font-mono)', color: '#38bdf8' }}>
-                    {idx.engines}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {idx.complexity && (
+                      <span style={{ fontSize: '0.64rem', fontFamily: 'var(--font-mono)', padding: '1px 5px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.2)', color: '#fde047', fontWeight: '700' }}>
+                        {idx.complexity}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '0.64rem', fontFamily: 'var(--font-mono)', color: '#38bdf8' }}>
+                      {idx.engines}
+                    </span>
+                  </div>
                 </div>
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
                   {idx.bestFor}

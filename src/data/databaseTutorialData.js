@@ -24,7 +24,7 @@ export const DATABASE_TUTORIAL_CHAPTERS = [
     title: 'Database Fundamentals & Storage Paradigms',
     subtitle: 'What is a DBMS, RDBMS vs NoSQL categories, ACID guarantees, and Core Relational Terminology',
     readTime: '6 min read',
-    relatedTab: 'guide',
+    relatedTab: 'flow',
     tags: ['DBMS', 'RDBMS', 'NoSQL', 'ACID', 'Keys', 'Data Models'],
     summary: 'A database is an organized collection of data managed by a DBMS. Learn the architectural differences between relational tables, document stores, key-value caches, graph networks, and the fundamental ACID guarantees that keep enterprise data safe.',
     keyTakeaways: [
@@ -1306,7 +1306,7 @@ Transaction Commit ──▶ Append Record to WAL ──▶ fsync() to Disk ─�
     title: 'Architecture Cheat Sheet & Engineering Learning Roadmap',
     subtitle: 'One-page system design reference, troubleshooting decision matrix, and structured 4-stage engineer mastery path',
     readTime: '8 min read',
-    relatedTab: 'guide',
+    relatedTab: 'architecture',
     tags: ['Cheat Sheet', 'Roadmap', 'System Design', 'Troubleshooting', 'Resources'],
     summary: 'Consolidate the entire database mastery curriculum into an actionable one-page engineering cheat sheet, a production troubleshooting decision tree, and a 4-stage study roadmap (Foundations → Working Engineer → Internals → Scale & Distribution).',
     keyTakeaways: [
@@ -1364,6 +1364,16 @@ Transaction Commit ──▶ Append Record to WAL ──▶ fsync() to Disk ─�
 3. ***Use The Index, Luke!*** by Markus Winand (Free online guide to SQL indexing and performance).
 4. ***High Performance MySQL*** by Silvia Botros & Jeremy Tinley (In-depth MySQL/InnoDB operational tuning).
 5. ***The Art of PostgreSQL*** by Dimitri Fontaine (Deep PostgreSQL idioms and relational query design).`
+      },
+      {
+        heading: '15.4 PostgreSQL & MySQL Architecture Reference Highlights',
+        content: `For comprehensive architectural details, open the **📑 Architecture Reference** tab directly within the Database module. Key highlights:
+
+- **Storage Models:** MySQL InnoDB organizes tables as Clustered B+Trees where user data resides in primary key leaf pages (requiring double-lookups for secondary indexes). PostgreSQL uses unordered 8KB Heap Blocks addressed by physical \`ctid\` coordinates, enabling 1-step secondary index probes and HOT (Heap-Only Tuples) in-page updates.
+- **Concurrency & Memory:** MySQL allocates ~1–3MB per thread; PostgreSQL forks an OS process consuming ~5–10MB+ per connection, making **PgBouncer** (Transaction Pooling) mandatory in production.
+- **Connection Pool Formula:** Both engines follow the HikariCP rule: \`connections ≈ (CPU Cores × 2) + Spindle Count\`. A 16-core NVMe server peaks at ~33 connections.
+- **MVCC Internals:** MySQL overwrites rows in-place and preserves older column deltas in Undo Log rollback segments; PostgreSQL appends new row versions into the heap tracked by \`xmin\`/\`xmax\` headers and relies on \`autovacuum\` to freeze tuples and avoid 32-bit XID wraparound.
+- **Production Tuning:** MySQL requires dedicating 60–75% RAM to \`innodb_buffer_pool_size\` with \`innodb_flush_method = O_DIRECT\`; PostgreSQL dedicates 25% RAM to \`shared_buffers\` plus \`effective_cache_size\` for the Linux OS page cache, with tuned \`random_page_cost = 1.1\` on NVMe SSDs.`
       }
     ]
   }

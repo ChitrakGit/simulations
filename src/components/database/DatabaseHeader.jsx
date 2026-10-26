@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Database,
   Layers,
@@ -9,7 +9,11 @@ import {
   Search,
   BookOpen,
   Boxes,
-  Network
+  Network,
+  FileText,
+  Code2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { DATABASE_ENGINES } from '../../data/databaseData';
 
@@ -22,6 +26,10 @@ export default function DatabaseHeader({
   setSearchQuery
 }) {
   const currentEngineObj = DATABASE_ENGINES.find(e => e.id === activeEngine) || DATABASE_ENGINES[0];
+
+  const scrollContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const getTabBadge = (tabId) => {
     if (tabId === 'flow') {
@@ -61,20 +69,73 @@ export default function DatabaseHeader({
     if (tabId === 'tutorial') {
       return '15 Chapters';
     }
-    return 'Roadmap';
+    if (tabId === 'architecture' || tabId === 'reference') {
+      if (activeEngine === 'postgres') return 'PG Heap & MVCC';
+      if (activeEngine === 'sql') return 'MySQL InnoDB';
+      return 'Postgres vs MySQL';
+    }
+    if (tabId === 'keywords') {
+      return 'MySQL • PG • Mongo';
+    }
+    return '';
   };
 
   const tabs = [
     { id: 'tutorial', num: '📚', label: 'Database Tutorial', icon: BookOpen, badge: 'Basic • Inter • Adv' },
+    { id: 'architecture', num: '📑', label: 'Architecture Reference', icon: FileText, badge: getTabBadge('architecture') },
+    { id: 'keywords', num: '🔑', label: 'Keywords Reference', icon: Code2, badge: getTabBadge('keywords') },
     { id: 'flow', num: '10.', label: 'Flow & Engine Pipeline', icon: Network, badge: getTabBadge('flow') },
     { id: 'query', num: '4.', label: 'Query Execution & Algebra', icon: Activity, badge: getTabBadge('query') },
     { id: 'normalization', num: '2.', label: 'Normalization & Schemas', icon: Layers, badge: getTabBadge('normalization') },
     { id: 'indexing', num: '7.', label: 'Indexing Masterclass', icon: GitBranch, badge: getTabBadge('indexing') },
     { id: 'scaling', num: '5 & 6.', label: 'Scaling & Sharding', icon: Boxes, badge: getTabBadge('scaling') },
     { id: 'transactions', num: '8.', label: 'Transactions & MVCC', icon: ShieldCheck, badge: getTabBadge('transactions') },
-    { id: 'connections', num: '3.', label: 'Engine Connections', icon: Cpu, badge: getTabBadge('connections') },
-    { id: 'guide', num: '1 & 9.', label: 'Fundamentals & Roadmap', icon: BookOpen, badge: getTabBadge('guide') }
+    { id: 'connections', num: '3.', label: 'Engine Connections', icon: Cpu, badge: getTabBadge('connections') }
   ];
+
+  const checkScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const hasOverflow = el.scrollWidth > el.clientWidth + 2;
+    setCanScrollLeft(el.scrollLeft > 6);
+    setCanScrollRight(hasOverflow && el.scrollLeft < el.scrollWidth - el.clientWidth - 6);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollContainerRef.current;
+    if (el) {
+      el.addEventListener('scroll', checkScroll, { passive: true });
+      window.addEventListener('resize', checkScroll);
+      const timer = setTimeout(checkScroll, 80);
+      return () => {
+        el.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+        clearTimeout(timer);
+      };
+    }
+  }, [checkScroll, tabs.length]);
+
+  const handleScrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -240, behavior: 'smooth' });
+    }
+  };
+
+  const handleScrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 240, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const activeEl = scrollContainerRef.current.querySelector('[data-active="true"]');
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }
+    }
+  }, [activeTab]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
@@ -159,7 +220,7 @@ export default function DatabaseHeader({
           </div>
 
           {/* Submenu Engine Switcher: [SQL, MONGODB, postgress] */}
-          <div style={{
+          {/* <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
@@ -210,11 +271,16 @@ export default function DatabaseHeader({
                 </button>
               );
             })}
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Navigation Subtabs Bar */}
+      <style>{`
+        .database-nav-scroll::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -222,119 +288,168 @@ export default function DatabaseHeader({
         flexWrap: 'wrap',
         gap: '12px'
       }}>
-        {/* Subtabs Buttons */}
-        <nav style={{
+        {/* Scrollable Subtabs Container with Left & Right Buttons */}
+        <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
-          background: 'rgba(0, 0, 0, 0.4)',
-          padding: '4px',
-          borderRadius: '12px',
-          border: '1px solid var(--border-subtle)',
-          overflowX: 'auto',
+          flex: '1 1 620px',
+          minWidth: 0,
           maxWidth: '100%'
         }}>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isTabActive = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                id={`db-tab-${tab.id}`}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 13px',
-                  borderRadius: '8px',
-                  fontSize: '0.8rem',
-                  fontWeight: isTabActive ? '700' : '500',
-                  color: isTabActive ? '#ffffff' : 'var(--text-muted)',
-                  background: isTabActive
-                    ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%)'
-                    : 'transparent',
-                  border: isTabActive ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid transparent',
-                  boxShadow: isTabActive ? '0 2px 10px rgba(245, 158, 11, 0.25)' : 'none',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <Icon size={14} color={isTabActive ? '#fbbf24' : 'var(--text-dim)'} />
-                {tab.num && (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: isTabActive ? '#fbbf24' : 'var(--text-dim)', fontWeight: '800' }}>
-                    {tab.num}
-                  </span>
-                )}
-                <span>{tab.label}</span>
-                <span style={{
-                  fontSize: '0.62rem',
-                  padding: '1px 5px',
-                  borderRadius: '4px',
-                  background: isTabActive ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.05)',
-                  color: isTabActive ? '#fef08a' : 'var(--text-dim)'
-                }}>
-                  {tab.badge}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Search Input */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <Search size={14} style={{
-            position: 'absolute',
-            left: '10px',
-            color: 'var(--text-dim)',
-            pointerEvents: 'none'
-          }} />
-          <input
-            type="text"
-            placeholder="Search SQL, EXPLAIN, indexes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          {/* Left Button */}
+          <button
+            onClick={handleScrollLeft}
+            disabled={!canScrollLeft}
+            aria-label="Scroll Submenu Left"
+            title={canScrollLeft ? "Scroll Submenu Left" : "Start of Submenu"}
             style={{
-              background: 'rgba(0, 0, 0, 0.35)',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-main)',
-              padding: '7px 12px 7px 30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '36px',
               borderRadius: '8px',
-              fontSize: '0.8rem',
-              fontFamily: 'inherit',
-              width: '210px',
-              outline: 'none',
-              transition: 'all 0.2s ease'
+              background: canScrollLeft ? 'rgba(245, 158, 11, 0.16)' : 'rgba(15, 23, 42, 0.6)',
+              border: canScrollLeft ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(255, 255, 255, 0.08)',
+              color: canScrollLeft ? '#fbbf24' : 'var(--text-dim)',
+              cursor: canScrollLeft ? 'pointer' : 'default',
+              opacity: canScrollLeft ? 1 : 0.35,
+              flexShrink: 0,
+              transition: 'all 0.18s ease',
+              boxShadow: canScrollLeft ? '0 2px 8px rgba(245, 158, 11, 0.25)' : 'none'
             }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#fbbf24';
-              e.target.style.width = '240px';
+            onMouseEnter={(e) => {
+              if (canScrollLeft) {
+                e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                e.currentTarget.style.borderColor = '#fbbf24';
+                e.currentTarget.style.transform = 'translateX(-1px)';
+              }
             }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'var(--border-subtle)';
-              e.target.style.width = '210px';
+            onMouseLeave={(e) => {
+              if (canScrollLeft) {
+                e.currentTarget.style.background = 'rgba(245, 158, 11, 0.16)';
+                e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }
             }}
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                color: 'var(--text-dim)',
-                fontSize: '0.75rem',
-                padding: '2px',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              ✕
-            </button>
-          )}
+          >
+            <ChevronLeft size={16} />
+          </button>
+
+          {/* Subtabs Buttons */}
+          <nav
+            ref={scrollContainerRef}
+            className="database-nav-scroll"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: 'rgba(0, 0, 0, 0.45)',
+              padding: '4px 6px',
+              borderRadius: '12px',
+              border: '1px solid var(--border-subtle)',
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              flex: 1,
+              minWidth: 0
+            }}
+          >
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isTabActive = activeTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  id={`db-tab-${tab.id}`}
+                  data-active={isTabActive ? 'true' : 'false'}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '7px 13px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: isTabActive ? '700' : '500',
+                    color: isTabActive ? '#ffffff' : 'var(--text-muted)',
+                    background: isTabActive
+                      ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%)'
+                      : 'transparent',
+                    border: isTabActive ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid transparent',
+                    boxShadow: isTabActive ? '0 2px 10px rgba(245, 158, 11, 0.25)' : 'none',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Icon size={14} color={isTabActive ? '#fbbf24' : 'var(--text-dim)'} />
+                  {tab.num && (
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: isTabActive ? '#fbbf24' : 'var(--text-dim)', fontWeight: '800' }}>
+                      {tab.num}
+                    </span>
+                  )}
+                  <span>{tab.label}</span>
+                  <span style={{
+                    fontSize: '0.62rem',
+                    padding: '1px 5px',
+                    borderRadius: '4px',
+                    background: isTabActive ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.05)',
+                    color: isTabActive ? '#fef08a' : 'var(--text-dim)'
+                  }}>
+                    {tab.badge}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Right Button */}
+          <button
+            onClick={handleScrollRight}
+            disabled={!canScrollRight}
+            aria-label="Scroll Submenu Right"
+            title={canScrollRight ? "Scroll Submenu Right" : "End of Submenu"}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '36px',
+              borderRadius: '8px',
+              background: canScrollRight ? 'rgba(245, 158, 11, 0.16)' : 'rgba(15, 23, 42, 0.6)',
+              border: canScrollRight ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(255, 255, 255, 0.08)',
+              color: canScrollRight ? '#fbbf24' : 'var(--text-dim)',
+              cursor: canScrollRight ? 'pointer' : 'default',
+              opacity: canScrollRight ? 1 : 0.35,
+              flexShrink: 0,
+              transition: 'all 0.18s ease',
+              boxShadow: canScrollRight ? '0 2px 8px rgba(245, 158, 11, 0.25)' : 'none'
+            }}
+            onMouseEnter={(e) => {
+              if (canScrollRight) {
+                e.currentTarget.style.background = 'rgba(245, 158, 11, 0.3)';
+                e.currentTarget.style.borderColor = '#fbbf24';
+                e.currentTarget.style.transform = 'translateX(1px)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (canScrollRight) {
+                e.currentTarget.style.background = 'rgba(245, 158, 11, 0.16)';
+                e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }
+            }}
+          >
+            <ChevronRight size={16} />
+          </button>
         </div>
+
+
       </div>
     </div>
   );

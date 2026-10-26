@@ -18,6 +18,7 @@ import {
 
 // ─── 12 Serialized Networking Modules Definition ─────────────────────────────
 export const NETWORKING_SUBTABS = [
+  { id: 'tutorial', serial: '📚', label: 'Tutorial Doc', icon: BookOpen, badge: '22 Chapters', isTutorial: true, desc: '22 comprehensive guided chapters with interactive widgets' },
   { id: 'topology', serial: '01', label: 'Topology & Packet Tracer', icon: Network, badge: 'Live Tracer', desc: 'Interactive topology builder, switch/router flows & packet tracing' },
   { id: 'xyflow-simulation', serial: '02', label: 'xyflow Simulation', icon: Zap, badge: 'Dual Flow', isXyflow: true, desc: 'Interactive node graph simulation with dual packet flows' },
   { id: 'tcp-udp', serial: '03', label: 'TCP/IP & UDP Models', icon: Layers, badge: 'Flow & Tracer', isTcpUdp: true, desc: 'Comparative transport models, 3-way handshake & UDP streaming' },
@@ -28,8 +29,7 @@ export const NETWORKING_SUBTABS = [
   { id: 'protocols', serial: '08', label: 'Protocols Explorer', icon: Radio, badge: 'TCP/DNS/ARP', desc: 'Deep dive into fundamental network protocols and packet headers' },
   { id: 'terminal', serial: '09', label: 'Network CLI Sandbox', icon: Terminal, badge: 'ping/dig', desc: 'Real-time network diagnostic CLI utilities with simulated output' },
   { id: 'subnet', serial: '10', label: 'Subnet & CIDR Guide', icon: Sliders, badge: 'Calculator', desc: 'IPv4 subnet calculations, netmasks, CIDR prefixes & host capacities' },
-  { id: 'ports', serial: '11', label: 'Ports & SG Rules', icon: Shield, badge: '28 Protocols', isPorts: true, desc: 'AWS Security Group rules, port ranges & modal inspector' },
-  { id: 'tutorial', serial: '12', label: 'Tutorial Doc', icon: BookOpen, badge: '22 Chapters', desc: '22 comprehensive guided chapters with interactive widgets' }
+  { id: 'ports', serial: '11', label: 'Ports & SG Rules', icon: Shield, badge: '28 Protocols', isPorts: true, desc: 'AWS Security Group rules, port ranges & modal inspector' }
 ];
 
 export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
@@ -224,10 +224,10 @@ export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
             border: '1px solid rgba(16, 185, 129, 0.35)',
             letterSpacing: '0.04em'
           }}>
-            SERIAL PIPELINE
+            {currentTab?.serial === '📚' ? 'TUTORIAL GUIDE' : 'SERIAL PIPELINE'}
           </span>
           <span style={{ color: 'var(--text-dim)', fontSize: '0.74rem' }}>
-            Module <strong style={{ color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{currentTab?.serial}</strong> / 12:
+            {currentTab?.serial === '📚' ? 'Curriculum' : <>Module <strong style={{ color: '#ffffff', fontFamily: 'var(--font-mono)' }}>{currentTab?.serial}</strong> / 11:</>}
           </span>
           <span style={{ color: '#38bdf8', fontWeight: '700' }}>
             {currentTab?.label}
@@ -263,7 +263,7 @@ export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
               opacity: prevTab ? 1 : 0.35,
               transition: 'all 0.15s ease'
             }}
-            title={prevTab ? `Previous: ${prevTab.serial}. ${prevTab.label}` : 'First module'}
+            title={prevTab ? `Previous: ${prevTab.serial === '📚' ? '📚' : `${prevTab.serial}.`} ${prevTab.label}` : 'First module'}
           >
             <ChevronLeft size={13} />
             Prev
@@ -275,7 +275,7 @@ export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
               <button
                 key={t.id}
                 onClick={() => setActiveSubTab(t.id)}
-                title={`Module ${t.serial}: ${t.label} (${t.badge})`}
+                title={t.serial === '📚' ? `${t.label} (${t.badge})` : `Module ${t.serial}: ${t.label} (${t.badge})`}
                 style={{
                   width: idx === currentIdx ? '18px' : '6px',
                   height: '6px',
@@ -309,7 +309,7 @@ export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
               opacity: nextTab ? 1 : 0.35,
               transition: 'all 0.15s ease'
             }}
-            title={nextTab ? `Next: ${nextTab.serial}. ${nextTab.label}` : 'Last module'}
+            title={nextTab ? `Next: ${nextTab.serial === '📚' ? '📚' : `${nextTab.serial}.`} ${nextTab.label}` : 'Last module'}
           >
             Next
             <ChevronRight size={13} />
@@ -380,6 +380,7 @@ export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
             const isPorts = tab.isPorts || tab.id === 'ports';
             const isTcpUdp = tab.isTcpUdp || tab.id === 'tcp-udp';
             const isIdsIps = tab.isIdsIps || tab.id === 'ids-ips';
+            const isTutorial = tab.isTutorial || tab.id === 'tutorial';
 
             let textColor = 'var(--text-muted)';
             let iconColor = '#94a3b8';
@@ -389,7 +390,14 @@ export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
             let badgeBg = 'rgba(255, 255, 255, 0.06)';
             let badgeColor = 'var(--text-dim)';
 
-            if (isAdvance) {
+            if (isTutorial) {
+              textColor = '#38bdf8';
+              iconColor = '#38bdf8';
+              bg = 'rgba(14, 165, 233, 0.12)';
+              border = '1px solid rgba(14, 165, 233, 0.35)';
+              badgeBg = 'rgba(14, 165, 233, 0.25)';
+              badgeColor = '#bae6fd';
+            } else if (isAdvance) {
               textColor = '#c084fc';
               iconColor = '#c084fc';
               bg = 'rgba(168, 85, 247, 0.12)';
@@ -432,7 +440,11 @@ export default function NetworkSubHeader({ activeSubTab, setActiveSubTab }) {
               badgeBg = 'rgba(255, 255, 255, 0.25)';
               badgeColor = '#ffffff';
 
-              if (isAdvance) {
+              if (isTutorial) {
+                bg = 'linear-gradient(135deg, #0284c7 0%, #0db7ed 100%)';
+                border = '1px solid #38bdf8';
+                shadow = '0 2px 14px rgba(14, 165, 233, 0.45)';
+              } else if (isAdvance) {
                 bg = 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)';
                 border = '1px solid #c084fc';
                 shadow = '0 2px 14px rgba(168, 85, 247, 0.45)';

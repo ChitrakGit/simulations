@@ -49,7 +49,7 @@ export default function App() {
     return 'sql';
   });
 
-  // Active database topic tab state: 'flow' | 'query' | 'normalization' | 'indexing' | 'scaling' | 'transactions' | 'connections' | 'guide' | 'tutorial'
+  // Active database topic tab state: 'flow' | 'query' | 'normalization' | 'indexing' | 'scaling' | 'transactions' | 'connections' | 'architecture' | 'tutorial'
   const [activeDatabaseTab, setActiveDatabaseTab] = useState(() => {
     if (typeof window !== 'undefined' && window.location.hash) {
       const cleanHash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
@@ -57,13 +57,15 @@ export default function App() {
       if (parts[0] === 'databases' || parts[0] === 'database') {
         const tabPart = parts[2] || parts[1] || '';
         if (tabPart.includes('tut')) return 'tutorial';
+        if (tabPart.includes('key') || tabPart.includes('syntax')) return 'keywords';
+        if (tabPart.includes('arch') || tabPart.includes('ref')) return 'architecture';
         if (tabPart.includes('query')) return 'query';
         if (tabPart.includes('norm') || tabPart.includes('schema')) return 'normalization';
         if (tabPart.includes('index')) return 'indexing';
         if (tabPart.includes('scale') || tabPart.includes('shard')) return 'scaling';
         if (tabPart.includes('trans') || tabPart.includes('mvcc') || tabPart.includes('acid')) return 'transactions';
         if (tabPart.includes('conn') || tabPart.includes('pool')) return 'connections';
-        if (tabPart.includes('guide') || tabPart.includes('roadmap')) return 'guide';
+        if (tabPart.includes('guide') || tabPart.includes('roadmap')) return 'architecture';
         if (tabPart.includes('flow')) return 'flow';
       }
     }
@@ -93,13 +95,15 @@ export default function App() {
 
         const tabPart = parts[2] || '';
         if (tabPart.includes('tut')) setActiveDatabaseTab('tutorial');
+        else if (tabPart.includes('key') || tabPart.includes('syntax')) setActiveDatabaseTab('keywords');
+        else if (tabPart.includes('arch') || tabPart.includes('ref')) setActiveDatabaseTab('architecture');
         else if (tabPart.includes('query')) setActiveDatabaseTab('query');
         else if (tabPart.includes('norm') || tabPart.includes('schema')) setActiveDatabaseTab('normalization');
         else if (tabPart.includes('index')) setActiveDatabaseTab('indexing');
         else if (tabPart.includes('scale') || tabPart.includes('shard')) setActiveDatabaseTab('scaling');
         else if (tabPart.includes('trans') || tabPart.includes('mvcc') || tabPart.includes('acid')) setActiveDatabaseTab('transactions');
         else if (tabPart.includes('conn') || tabPart.includes('pool')) setActiveDatabaseTab('connections');
-        else if (tabPart.includes('guide') || tabPart.includes('roadmap')) setActiveDatabaseTab('guide');
+        else if (tabPart.includes('guide') || tabPart.includes('roadmap')) setActiveDatabaseTab('architecture');
         else if (tabPart.includes('flow')) setActiveDatabaseTab('flow');
       } else if (primary === 'networking') {
         setActiveDomain('networking');
@@ -209,7 +213,7 @@ export default function App() {
       )}
 
       {/* DOMAIN 1: DOCKER & CONTAINER ARCHITECTURE SUITE */}
-      {activeDomain === 'docker' && (
+      {(activeDomain === 'docker' || activeDomain === 'tools') && (
         <Suspense fallback={
           <SuspenseLoader
             label="Streaming Docker Architecture Suite..."

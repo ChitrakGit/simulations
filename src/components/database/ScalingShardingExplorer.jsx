@@ -106,6 +106,7 @@ export default function ScalingShardingExplorer({ activeEngine = 'sql' }) {
             { id: 'strategies', label: '6 Sharding Strategies' },
             { id: 'ring', label: 'Consistent Hash Ring Simulator' },
             { id: 'key_eval', label: 'Shard Key Evaluator' },
+            { id: 'ha_topologies', label: 'HA & Replication (Patroni vs Galera)' },
             { id: 'roadmap', label: '8-Step Scaling Roadmap' },
             { id: 'cap', label: 'CAP & PACELC' }
           ].map(tab => (
@@ -526,6 +527,63 @@ export default function ScalingShardingExplorer({ activeEngine = 'sql' }) {
               <div style={{ fontSize: '0.72rem', color: '#cbd5e1' }}>
                 Examples: Apache Cassandra, AWS DynamoDB (eventual), CouchDB.
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW: HA & REPLICATION TOPOLOGIES (From doc/database_architecture_reference.md) */}
+      {activeSubtab === 'ha_topologies' && (
+        <div className="glass-panel" style={{
+          padding: '24px',
+          borderRadius: '16px',
+          background: 'rgba(15, 23, 42, 0.85)',
+          border: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', marginBottom: '8px', marginTop: 0 }}>
+            High Availability & Replication Topologies
+          </h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
+            Production clustering models comparing PostgreSQL streaming replication with Patroni vs MySQL binlog with Orchestrator & Galera.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+            {/* PostgreSQL Patroni HA */}
+            <div style={{ padding: '18px', borderRadius: '12px', background: 'rgba(51, 103, 145, 0.12)', border: '1px solid rgba(51, 103, 145, 0.35)' }}>
+              <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#818cf8', marginBottom: '8px' }}>
+                🐘 PostgreSQL Replication & Patroni HA
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.76rem', color: '#cbd5e1', lineHeight: '1.6' }}>
+                <li><strong>Physical Streaming Replication:</strong> Streams exact byte-level WAL records (<code>pg_wal</code>) directly to standby nodes.</li>
+                <li><strong>Synchronous Commit:</strong> Configurable via <code>synchronous_commit = on | remote_apply</code> and <code>synchronous_standby_names = 'FIRST 1 (s1, s2)'</code>.</li>
+                <li><strong>Logical Replication:</strong> Publish/Subscribe model (<code>CREATE PUBLICATION</code> / <code>CREATE SUBSCRIPTION</code>) for selective table replication, cross-version upgrades, and feeding data to Kafka.</li>
+                <li><strong>Patroni:</strong> The industry standard for PostgreSQL HA. Uses distributed consensus (etcd, Consul, ZooKeeper) for split-brain-proof automatic failover.</li>
+              </ul>
+            </div>
+
+            {/* MySQL Orchestrator & Galera */}
+            <div style={{ padding: '18px', borderRadius: '12px', background: 'rgba(2, 132, 199, 0.12)', border: '1px solid rgba(2, 132, 199, 0.35)' }}>
+              <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#38bdf8', marginBottom: '8px' }}>
+                🐬 MySQL Replication & Orchestrator HA
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.76rem', color: '#cbd5e1', lineHeight: '1.6' }}>
+                <li><strong>Binary Log (binlog):</strong> Row-based (RBR), Statement-based (SBR), or Mixed replication.</li>
+                <li><strong>Semisynchronous Replication:</strong> Primary waits for at least one replica to acknowledge receipt of the binlog event into its relay log before returning success to the client.</li>
+                <li><strong>Group Replication / Galera Cluster:</strong> Multi-primary or single-primary Paxos-based consensus cluster.</li>
+                <li><strong>Orchestrator:</strong> Standard industry tool for MySQL topology management and automated failover.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Declarative Partitioning */}
+          <div style={{ padding: '16px', borderRadius: '10px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <h4 style={{ margin: '0 0 6px 0', fontSize: '0.86rem', color: '#fbbf24', fontWeight: '800' }}>
+              Declarative Table Partitioning (Single-Server Scale)
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', fontSize: '0.76rem', color: '#cbd5e1' }}>
+              <div><strong>Range Partitioning:</strong> Split by date or sequential ID (<code>orders_2026_q1</code>). Efficient for dropping old data (<code>DROP TABLE</code> vs slow <code>DELETE</code>).</div>
+              <div><strong>List Partitioning:</strong> Split by explicit discrete values (e.g. <code>country IN ('US', 'CA')</code>).</div>
+              <div><strong>Hash Partitioning:</strong> Split evenly using an internal hash modulus (e.g. <code>MOD(hash(user_id), 8)</code>).</div>
             </div>
           </div>
         </div>

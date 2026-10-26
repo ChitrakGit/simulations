@@ -8,14 +8,23 @@ import {
   Key,
   Compass,
   Terminal,
-  Activity
+  Activity,
+  Copy,
+  Check
 } from 'lucide-react';
-import { FUNDAMENTALS_DATA } from '../../data/databaseData';
+import { FUNDAMENTALS_DATA, DATABASE_ARCHITECTURE_REFERENCE } from '../../data/databaseData';
 
 export default function DatabaseGuideRoadmap({ activeEngine = 'sql' }) {
   // Active sub-tab within Roadmap & Fundamentals: 'all' | 'fundamentals' | 'roadmap' | 'troubleshoot' | 'resources'
   const [activeSection, setActiveSection] = useState('all');
   const [completedTopics, setCompletedTopics] = useState(new Set());
+  const [copiedConfig, setCopiedConfig] = useState(null);
+
+  const handleCopy = (text, key) => {
+    navigator.clipboard.writeText(text);
+    setCopiedConfig(key);
+    setTimeout(() => setCopiedConfig(null), 2000);
+  };
 
   const toggleTopic = (id) => {
     setCompletedTopics((prev) => {
@@ -356,6 +365,7 @@ export default function DatabaseGuideRoadmap({ activeEngine = 'sql' }) {
             { id: 'keys', label: '1.3 Relational Keys' },
             { id: 'roadmap', label: '9.3 4-Stage Roadmap' },
             { id: 'troubleshoot', label: 'Troubleshooting Tree' },
+            { id: 'tuning', label: '9. Production Tuning (my.cnf & postgresql.conf)' },
             { id: 'resources', label: 'Resources & Practice' }
           ].map((tab) => {
             const isSelected = activeSection === tab.id;
@@ -837,6 +847,131 @@ export default function DatabaseGuideRoadmap({ activeEngine = 'sql' }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION: PRODUCTION PARAMETER TUNING REFERENCE (From doc/database_architecture_reference.md) */}
+      {(activeSection === 'all' || activeSection === 'tuning') && (
+        <div className="glass-panel" style={{
+          padding: '24px',
+          borderRadius: '16px',
+          background: 'rgba(15, 23, 42, 0.85)',
+          border: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+            <div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', margin: '0 0 4px 0' }}>
+                9. Production Parameter Tuning Reference
+              </h3>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                Hardened production server configuration templates for NVMe SSD storage from Section 9 of the Database Reference.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+            {/* MySQL my.cnf */}
+            <div style={{
+              borderRadius: '12px',
+              background: '#090d16',
+              border: '1px solid rgba(2, 132, 199, 0.35)',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                background: 'rgba(2, 132, 199, 0.15)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+              }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
+                  📁 my.cnf (MySQL 8.x InnoDB)
+                </span>
+                <button
+                  onClick={() => handleCopy(DATABASE_ARCHITECTURE_REFERENCE.productionTuning.mysql.configText, 'mysql_cnf_guide')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: '0.72rem',
+                    padding: '3px 8px',
+                    borderRadius: '5px',
+                    background: 'rgba(0,0,0,0.4)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#ffffff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {copiedConfig === 'mysql_cnf_guide' ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
+                  <span>{copiedConfig === 'mysql_cnf_guide' ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+
+              <pre style={{
+                margin: 0,
+                padding: '14px',
+                fontFamily: 'Consolas, monospace',
+                fontSize: '0.72rem',
+                color: '#38bdf8',
+                lineHeight: '1.5',
+                overflowX: 'auto'
+              }}>
+                {DATABASE_ARCHITECTURE_REFERENCE.productionTuning.mysql.configText}
+              </pre>
+            </div>
+
+            {/* PostgreSQL postgresql.conf */}
+            <div style={{
+              borderRadius: '12px',
+              background: '#090d16',
+              border: '1px solid rgba(51, 103, 145, 0.35)',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                background: 'rgba(51, 103, 145, 0.15)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+              }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#818cf8', fontFamily: 'var(--font-mono)' }}>
+                  📁 postgresql.conf (PostgreSQL 16.x)
+                </span>
+                <button
+                  onClick={() => handleCopy(DATABASE_ARCHITECTURE_REFERENCE.productionTuning.postgres.configText, 'pg_conf_guide')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: '0.72rem',
+                    padding: '3px 8px',
+                    borderRadius: '5px',
+                    background: 'rgba(0,0,0,0.4)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#ffffff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {copiedConfig === 'pg_conf_guide' ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
+                  <span>{copiedConfig === 'pg_conf_guide' ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+
+              <pre style={{
+                margin: 0,
+                padding: '14px',
+                fontFamily: 'Consolas, monospace',
+                fontSize: '0.72rem',
+                color: '#818cf8',
+                lineHeight: '1.5',
+                overflowX: 'auto'
+              }}>
+                {DATABASE_ARCHITECTURE_REFERENCE.productionTuning.postgres.configText}
+              </pre>
             </div>
           </div>
         </div>
