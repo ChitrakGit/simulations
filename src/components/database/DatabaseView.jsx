@@ -11,9 +11,9 @@ const IndexingExplorer = lazy(() => import('./IndexingExplorer'));
 const ScalingShardingExplorer = lazy(() => import('./ScalingShardingExplorer'));
 const TransactionsExplorer = lazy(() => import('./TransactionsExplorer'));
 const ConnectionsExplorer = lazy(() => import('./ConnectionsExplorer'));
-const DatabaseGuideRoadmap = lazy(() => import('./DatabaseGuideRoadmap'));
 const DatabaseTutorial = lazy(() => import('./DatabaseTutorial'));
 const DatabaseArchitectureReference = lazy(() => import('./DatabaseArchitectureReference'));
+const DatabaseKeywordsReference = lazy(() => import('./DatabaseKeywordsReference'));
 
 export default function DatabaseView({
   activeEngine: propEngine,
@@ -84,10 +84,6 @@ export default function DatabaseView({
             <ConnectionsExplorer activeEngine={activeEngine} />
           )}
 
-          {activeTab === 'guide' && (
-            <DatabaseGuideRoadmap activeEngine={activeEngine} />
-          )}
-
           {activeTab === 'tutorial' && (
             <DatabaseTutorial
               onNavigateToTab={setActiveTab}
@@ -98,6 +94,13 @@ export default function DatabaseView({
 
           {(activeTab === 'architecture' || activeTab === 'reference') && (
             <DatabaseArchitectureReference
+              activeEngine={activeEngine}
+              setActiveEngine={setActiveEngine}
+            />
+          )}
+
+          {(activeTab === 'keywords' || activeTab === 'syntax') && (
+            <DatabaseKeywordsReference
               activeEngine={activeEngine}
               setActiveEngine={setActiveEngine}
             />

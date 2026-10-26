@@ -8,14 +8,7 @@ import {
   Box,
   Server,
   Layers,
-  Boxes,
-  Network,
-  X,
-  Activity,
-  GitBranch,
-  ShieldCheck,
-  BookOpen,
-  FileText
+  X
 } from 'lucide-react';
 import LearnBySimulationLogo from '../common/LearnBySimulationLogo';
 
@@ -67,19 +60,6 @@ export default function MainNavigation({
     }
   ];
 
-  // Database Topic items (Chapters 1-10 & Tutorial)
-  const databaseTopics = [
-    { id: 'tutorial', num: '📚', label: 'Tutorial', icon: BookOpen },
-    { id: 'architecture', num: '📑', label: 'Architecture Ref', icon: FileText },
-    { id: 'flow', num: '10.', label: 'Flow & Pipeline', icon: Network },
-    { id: 'query', num: '4.', label: 'Query Execution', icon: Activity },
-    { id: 'normalization', num: '2.', label: 'Normalization', icon: Layers },
-    { id: 'indexing', num: '7.', label: 'Indexing', icon: GitBranch },
-    { id: 'scaling', num: '5 & 6.', label: 'Sharding', icon: Boxes },
-    { id: 'transactions', num: '8.', label: 'Transactions', icon: ShieldCheck },
-    { id: 'connections', num: '3.', label: 'Connections', icon: Cpu },
-    { id: 'guide', num: '1 & 9.', label: 'Roadmap', icon: BookOpen }
-  ];
 
   // Tools submenu items
   const toolsSubmenu = [
@@ -199,12 +179,12 @@ export default function MainNavigation({
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
       }}>
         {/* Brand / Logo Hub */}
-        <div 
+        <div
           onClick={() => setActiveDomain(null)}
           title="Return to Learn by Simulation (Default View)"
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+          style={{
+            display: 'flex',
+            alignItems: 'center',
             gap: '12px',
             cursor: 'pointer',
             userSelect: 'none',
@@ -543,57 +523,6 @@ export default function MainNavigation({
                   }}>
                     {dbItem.badge}
                   </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Right: Topics Submenu Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <span style={{
-              fontSize: '0.68rem',
-              fontWeight: '800',
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-              color: 'var(--text-dim)',
-              paddingRight: '4px'
-            }}>
-              Topics:
-            </span>
-
-            {databaseTopics.map((topic) => {
-              const isTopicActive = activeDatabaseTab === topic.id;
-              const TopicIcon = topic.icon;
-              return (
-                <button
-                  key={topic.id}
-                  id={`subbar-topic-${topic.id}`}
-                  onClick={() => {
-                    setActiveDomain('databases');
-                    if (setActiveDatabaseTab) {
-                      setActiveDatabaseTab(topic.id);
-                    }
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    padding: '5px 10px',
-                    borderRadius: '7px',
-                    fontSize: '0.74rem',
-                    fontWeight: isTopicActive ? '700' : '500',
-                    color: isTopicActive ? '#ffffff' : 'var(--text-muted)',
-                    background: isTopicActive
-                      ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.45) 100%)'
-                      : 'rgba(255, 255, 255, 0.04)',
-                    border: isTopicActive ? '1px solid rgba(245, 158, 11, 0.55)' : '1px solid rgba(255, 255, 255, 0.06)',
-                    boxShadow: isTopicActive ? '0 2px 10px rgba(245, 158, 11, 0.25)' : 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <TopicIcon size={12} color={isTopicActive ? '#fbbf24' : 'var(--text-dim)'} />
-                  <span>{topic.num} {topic.label}</span>
                 </button>
               );
             })}

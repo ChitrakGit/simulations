@@ -162,7 +162,7 @@ export default function NetworkingView() {
                 border: '1px solid rgba(16, 185, 129, 0.4)',
                 fontFamily: 'var(--font-mono)'
               }}>
-                SERIES {currentTab.serial} / 12
+                {currentTab.serial === '📚' ? 'TUTORIAL GUIDE' : `SERIES ${currentTab.serial} / 11`}
               </span>
               <span style={{ fontSize: '0.86rem', fontWeight: '800', color: '#ffffff' }}>
                 {currentTab.label}
@@ -182,7 +182,7 @@ export default function NetworkingView() {
                   <button
                     key={tab.id}
                     onClick={() => navigateToTab(tab.id)}
-                    title={`${tab.serial}. ${tab.label} (${tab.badge})`}
+                    title={tab.serial === '📚' ? `${tab.label} (${tab.badge})` : `${tab.serial}. ${tab.label} (${tab.badge})`}
                     style={{
                       padding: isCur ? '3px 8px' : '3px 5px',
                       borderRadius: '4px',
@@ -243,7 +243,7 @@ export default function NetworkingView() {
                   Next Module
                 </div>
                 <div style={{ fontSize: '0.84rem', fontWeight: '700', color: '#ffffff' }}>
-                  <span style={{ fontFamily: 'var(--font-mono)', color: '#38bdf8', marginRight: '6px' }}>{nextTab.serial}.</span>
+                  <span style={{ fontFamily: 'var(--font-mono)', color: '#38bdf8', marginRight: '6px' }}>{nextTab.serial === '📚' ? '📚' : `${nextTab.serial}.`}</span>
                   {nextTab.label}
                 </div>
               </div>

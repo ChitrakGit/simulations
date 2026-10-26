@@ -24,7 +24,7 @@ export const DATABASE_TUTORIAL_CHAPTERS = [
     title: 'Database Fundamentals & Storage Paradigms',
     subtitle: 'What is a DBMS, RDBMS vs NoSQL categories, ACID guarantees, and Core Relational Terminology',
     readTime: '6 min read',
-    relatedTab: 'guide',
+    relatedTab: 'flow',
     tags: ['DBMS', 'RDBMS', 'NoSQL', 'ACID', 'Keys', 'Data Models'],
     summary: 'A database is an organized collection of data managed by a DBMS. Learn the architectural differences between relational tables, document stores, key-value caches, graph networks, and the fundamental ACID guarantees that keep enterprise data safe.',
     keyTakeaways: [
@@ -1306,7 +1306,7 @@ Transaction Commit ──▶ Append Record to WAL ──▶ fsync() to Disk ─�
     title: 'Architecture Cheat Sheet & Engineering Learning Roadmap',
     subtitle: 'One-page system design reference, troubleshooting decision matrix, and structured 4-stage engineer mastery path',
     readTime: '8 min read',
-    relatedTab: 'guide',
+    relatedTab: 'architecture',
     tags: ['Cheat Sheet', 'Roadmap', 'System Design', 'Troubleshooting', 'Resources'],
     summary: 'Consolidate the entire database mastery curriculum into an actionable one-page engineering cheat sheet, a production troubleshooting decision tree, and a 4-stage study roadmap (Foundations → Working Engineer → Internals → Scale & Distribution).',
     keyTakeaways: [
