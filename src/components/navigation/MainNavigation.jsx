@@ -14,7 +14,8 @@ import {
   Activity,
   GitBranch,
   ShieldCheck,
-  BookOpen
+  BookOpen,
+  FileText
 } from 'lucide-react';
 import LearnBySimulationLogo from '../common/LearnBySimulationLogo';
 
@@ -69,6 +70,7 @@ export default function MainNavigation({
   // Database Topic items (Chapters 1-10 & Tutorial)
   const databaseTopics = [
     { id: 'tutorial', num: '📚', label: 'Tutorial', icon: BookOpen },
+    { id: 'architecture', num: '📑', label: 'Architecture Ref', icon: FileText },
     { id: 'flow', num: '10.', label: 'Flow & Pipeline', icon: Network },
     { id: 'query', num: '4.', label: 'Query Execution', icon: Activity },
     { id: 'normalization', num: '2.', label: 'Normalization', icon: Layers },

@@ -134,7 +134,8 @@ export default function TransactionsExplorer({ activeEngine = 'sql' }) {
           {[
             { id: 'anomalies', label: '5 Concurrency Anomalies' },
             { id: 'matrix', label: 'Isolation Levels Matrix' },
-            { id: 'mvcc', label: 'MVCC vs 2PL Locking' },
+            { id: 'mvcc', label: 'MVCC vs 2PL (Undo vs Heap)' },
+            { id: 'locking', label: 'InnoDB Locks & PG XID Wraparound' },
             { id: 'wal', label: 'WAL & Crash Recovery' }
           ].map(tab => (
             <button
@@ -317,7 +318,7 @@ export default function TransactionsExplorer({ activeEngine = 'sql' }) {
             In traditional locking databases, readers block writers and writers block readers. Modern MVCC systems decouple readers and writers entirely.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '20px' }}>
             <div style={{ padding: '16px', borderRadius: '10px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
               <div style={{ fontSize: '0.84rem', fontWeight: '800', color: '#34d399', marginBottom: '6px' }}>
                 MVCC (PostgreSQL & MySQL InnoDB)
@@ -334,6 +335,86 @@ export default function TransactionsExplorer({ activeEngine = 'sql' }) {
               <p style={{ fontSize: '0.76rem', color: '#e2e8f0', lineHeight: '1.5', margin: 0 }}>
                 {TRANSACTIONS_DATA.mvccVsLocking.locking}
               </p>
+            </div>
+          </div>
+
+          {/* Implementation Comparison: Undo Logs vs Heap Tuples (from doc/database_architecture_reference.md) */}
+          <h4 style={{ fontSize: '0.9rem', fontWeight: '800', color: '#38bdf8', marginBottom: '10px' }}>
+            On-Disk Implementation: Undo Logs (MySQL) vs Heap Tuples (PostgreSQL)
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+            <div style={{ padding: '14px', borderRadius: '10px', background: '#090d16', border: '1px solid rgba(2, 132, 199, 0.35)' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#38bdf8', marginBottom: '6px' }}>
+                MySQL InnoDB (Rollback Segments)
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#93c5fd', lineHeight: '1.5' }}>
+                [Clustered Table]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Undo Log Tablespace]<br />
+                ┌────────────────────────┐&nbsp;&nbsp;&nbsp;&nbsp;┌────────────────────────┐<br />
+                │ User Row (bal: $80)&nbsp;&nbsp;&nbsp;&nbsp;│───►│ Undo Rec: (bal: $100)&nbsp;&nbsp;│<br />
+                │ DB_TRX_ID: 15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;└────────────────────────┘<br />
+                │ DB_ROLL_PTR ───────────┘<br />
+                * Overwrites in place. Older versions reconstructed on the fly by following DB_ROLL_PTR backward.<br />
+                * Purge threads delete Undo logs when no active transaction needs older snapshots.
+              </div>
+            </div>
+
+            <div style={{ padding: '14px', borderRadius: '10px', background: '#090d16', border: '1px solid rgba(51, 103, 145, 0.35)' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#818cf8', marginBottom: '6px' }}>
+                PostgreSQL (Heap Tuple Versions)
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#c7d2fe', lineHeight: '1.5' }}>
+                [8KB Heap Block]<br />
+                ┌────────────────────────────────────────────────────────┐<br />
+                │ Tuple 1: (id: 1, bal: $100) | xmin: 10 | xmax: 15 (Dead)│<br />
+                │ Tuple 2: (id: 1, bal: $80)&nbsp;&nbsp;| xmin: 15 | xmax: 0&nbsp;&nbsp;(Live)│<br />
+                └────────────────────────────────────────────────────────┘<br />
+                * Append-only. Updates create brand-new tuple in the heap.<br />
+                * xmin: Tx that inserted; xmax: Tx that updated/deleted (0 if active).<br />
+                * VACUUM daemon cleans dead tuples where xmax &lt; oldest active Tx.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW: INNODB LOCKS & PG XID WRAPAROUND */}
+      {activeTab === 'locking' && (
+        <div className="glass-panel" style={{
+          padding: '24px',
+          borderRadius: '16px',
+          background: 'rgba(15, 23, 42, 0.85)',
+          border: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', marginBottom: '8px', marginTop: 0 }}>
+            InnoDB Locking Modes & PostgreSQL XID Wraparound
+          </h3>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '18px' }}>
+            Advanced locking semantics in MySQL InnoDB and 32-bit transaction ID wraparound disaster prevention in PostgreSQL.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+            <div style={{ padding: '16px', borderRadius: '10px', background: 'rgba(2, 132, 199, 0.08)', border: '1px solid rgba(2, 132, 199, 0.3)' }}>
+              <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#38bdf8', marginBottom: '10px' }}>
+                🐬 MySQL InnoDB Multi-Granularity Locks
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.76rem', color: '#cbd5e1', lineHeight: '1.6' }}>
+                <li><strong>Record Lock:</strong> Locks the specific B+Tree index record itself.</li>
+                <li><strong>Gap Lock:</strong> Locks open gaps between index records (or before first / after last) to prevent concurrent inserts into the gap.</li>
+                <li><strong>Next-Key Lock:</strong> Record Lock + Gap Lock immediately preceding the record. <em>Default mechanism in Repeatable Read to prevent phantom rows!</em></li>
+                <li><strong>Intention Locks (IS / IX):</strong> Table-level flags declaring that a transaction intends to acquire row-level shared or exclusive locks downstream.</li>
+              </ul>
+            </div>
+
+            <div style={{ padding: '16px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+              <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#f87171', marginBottom: '6px' }}>
+                🐘 PostgreSQL XID Wraparound & Autovacuum Freezing
+              </div>
+              <p style={{ fontSize: '0.76rem', color: '#fca5a5', lineHeight: '1.5', margin: '0 0 10px 0' }}>
+                Because PostgreSQL uses 32-bit transaction IDs (xmin/xmax, ~4.2B max), IDs eventually wrap around. Old rows would appear created in the "future" and disappear!
+              </p>
+              <div style={{ fontSize: '0.74rem', color: '#ffffff', background: 'rgba(0,0,0,0.5)', padding: '10px', borderRadius: '8px' }}>
+                🛡️ <strong>The Freezing Mechanism:</strong> <code>autovacuum</code> scans old pages and marks tuples as <strong>Frozen</strong> (using a special infomask bit). Frozen tuples are globally visible to all transactions regardless of current XID. Tuning <code>autovacuum_freeze_max_age</code> is critical to prevent emergency single-user shutdowns.
+              </div>
             </div>
           </div>
         </div>

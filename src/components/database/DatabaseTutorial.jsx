@@ -16,7 +16,8 @@ import {
   CheckSquare,
   Square,
   Server,
-  HelpCircle
+  HelpCircle,
+  FileText
 } from 'lucide-react';
 import {
   DATABASE_TUTORIAL_LEVELS,
@@ -1209,29 +1210,53 @@ export default function DatabaseTutorial({ onNavigateToTab, activeEngine = 'sql'
                 </p>
               </div>
 
-              {/* Jump to Interactive Simulator Button */}
-              {onNavigateToTab && currentChapter.relatedTab && (
-                <button
-                  onClick={() => onNavigateToTab(currentChapter.relatedTab)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 14px',
-                    borderRadius: '9px',
-                    background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
-                    color: '#ffffff',
-                    fontSize: '0.78rem',
-                    fontWeight: '700',
-                    border: 'none',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 12px rgba(14, 165, 233, 0.35)'
-                  }}
-                >
-                  <Zap size={14} />
-                  <span>Open Interactive Tab</span>
-                </button>
-              )}
+              {/* Navigation Action Buttons */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {onNavigateToTab && currentChapter.relatedTab && (
+                  <button
+                    onClick={() => onNavigateToTab(currentChapter.relatedTab)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 14px',
+                      borderRadius: '9px',
+                      background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.78rem',
+                      fontWeight: '700',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 12px rgba(14, 165, 233, 0.35)'
+                    }}
+                  >
+                    <Zap size={14} />
+                    <span>Open Interactive Tab</span>
+                  </button>
+                )}
+
+                {onNavigateToTab && (
+                  <button
+                    onClick={() => onNavigateToTab('architecture')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 14px',
+                      borderRadius: '9px',
+                      background: 'rgba(245, 158, 11, 0.15)',
+                      border: '1px solid rgba(245, 158, 11, 0.4)',
+                      color: '#fbbf24',
+                      fontSize: '0.78rem',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <FileText size={14} />
+                    <span>📑 Architecture Reference</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Active Engine Perspective Box */}

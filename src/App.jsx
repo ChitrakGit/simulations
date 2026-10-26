@@ -57,6 +57,7 @@ export default function App() {
       if (parts[0] === 'databases' || parts[0] === 'database') {
         const tabPart = parts[2] || parts[1] || '';
         if (tabPart.includes('tut')) return 'tutorial';
+        if (tabPart.includes('arch') || tabPart.includes('ref')) return 'architecture';
         if (tabPart.includes('query')) return 'query';
         if (tabPart.includes('norm') || tabPart.includes('schema')) return 'normalization';
         if (tabPart.includes('index')) return 'indexing';
@@ -93,6 +94,7 @@ export default function App() {
 
         const tabPart = parts[2] || '';
         if (tabPart.includes('tut')) setActiveDatabaseTab('tutorial');
+        else if (tabPart.includes('arch') || tabPart.includes('ref')) setActiveDatabaseTab('architecture');
         else if (tabPart.includes('query')) setActiveDatabaseTab('query');
         else if (tabPart.includes('norm') || tabPart.includes('schema')) setActiveDatabaseTab('normalization');
         else if (tabPart.includes('index')) setActiveDatabaseTab('indexing');

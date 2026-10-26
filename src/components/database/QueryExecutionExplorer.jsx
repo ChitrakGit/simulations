@@ -510,6 +510,22 @@ export default function QueryExecutionExplorer({ activeEngine = 'sql' }) {
             }}>
               <strong>Optimizer Transformation Rule:</strong> Selection Pushdown: <code style={{ color: '#38bdf8' }}>σc(R ⨝ S) ≡ σc(R) ⨝ S</code>. By filtering rows before the join, intermediate row volume drops by 90%+, speeding up execution exponentially!
             </div>
+
+            {/* Advanced Execution: Parallel Query & JIT LLVM (from doc/database_architecture_reference.md) */}
+            <div style={{
+              marginTop: '12px',
+              padding: '12px 14px',
+              borderRadius: '8px',
+              background: 'rgba(168, 85, 247, 0.08)',
+              border: '1px solid rgba(168, 85, 247, 0.25)',
+              fontSize: '0.76rem',
+              color: '#e2e8f0',
+              lineHeight: '1.5'
+            }}>
+              <span style={{ fontWeight: '800', color: '#c084fc' }}>⚡ Advanced Modern Engine Execution (Section 6.4):</span><br />
+              • <strong>Parallel Query Execution:</strong> Large sequential scans, hash joins, and aggregations are partitioned among worker threads/processes (e.g. <code style={{ color: '#38bdf8' }}>max_parallel_workers_per_gather</code> in PostgreSQL).<br />
+              • <strong>JIT Compilation (LLVM):</strong> PostgreSQL 11+ Just-In-Time compiles complex SQL expressions and filter trees directly into native machine code at runtime, slashing CPU interpretive loop overhead.
+            </div>
           </div>
         </div>
       )}

@@ -9,7 +9,8 @@ import {
   Search,
   BookOpen,
   Boxes,
-  Network
+  Network,
+  FileText
 } from 'lucide-react';
 import { DATABASE_ENGINES } from '../../data/databaseData';
 
@@ -61,11 +62,17 @@ export default function DatabaseHeader({
     if (tabId === 'tutorial') {
       return '15 Chapters';
     }
+    if (tabId === 'architecture' || tabId === 'reference') {
+      if (activeEngine === 'postgres') return 'PG Heap & MVCC';
+      if (activeEngine === 'sql') return 'MySQL InnoDB';
+      return 'Postgres vs MySQL';
+    }
     return 'Roadmap';
   };
 
   const tabs = [
     { id: 'tutorial', num: '📚', label: 'Database Tutorial', icon: BookOpen, badge: 'Basic • Inter • Adv' },
+    { id: 'architecture', num: '📑', label: 'Architecture Reference', icon: FileText, badge: getTabBadge('architecture') },
     { id: 'flow', num: '10.', label: 'Flow & Engine Pipeline', icon: Network, badge: getTabBadge('flow') },
     { id: 'query', num: '4.', label: 'Query Execution & Algebra', icon: Activity, badge: getTabBadge('query') },
     { id: 'normalization', num: '2.', label: 'Normalization & Schemas', icon: Layers, badge: getTabBadge('normalization') },
@@ -159,7 +166,7 @@ export default function DatabaseHeader({
           </div>
 
           {/* Submenu Engine Switcher: [SQL, MONGODB, postgress] */}
-          <div style={{
+          {/* <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
@@ -210,7 +217,7 @@ export default function DatabaseHeader({
                 </button>
               );
             })}
-          </div>
+          </div> */}
         </div>
       </div>
 

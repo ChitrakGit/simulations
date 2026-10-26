@@ -1364,6 +1364,16 @@ Transaction Commit ──▶ Append Record to WAL ──▶ fsync() to Disk ─�
 3. ***Use The Index, Luke!*** by Markus Winand (Free online guide to SQL indexing and performance).
 4. ***High Performance MySQL*** by Silvia Botros & Jeremy Tinley (In-depth MySQL/InnoDB operational tuning).
 5. ***The Art of PostgreSQL*** by Dimitri Fontaine (Deep PostgreSQL idioms and relational query design).`
+      },
+      {
+        heading: '15.4 PostgreSQL & MySQL Architecture Reference Highlights',
+        content: `For comprehensive architectural details, open the **📑 Architecture Reference** tab directly within the Database module. Key highlights:
+
+- **Storage Models:** MySQL InnoDB organizes tables as Clustered B+Trees where user data resides in primary key leaf pages (requiring double-lookups for secondary indexes). PostgreSQL uses unordered 8KB Heap Blocks addressed by physical \`ctid\` coordinates, enabling 1-step secondary index probes and HOT (Heap-Only Tuples) in-page updates.
+- **Concurrency & Memory:** MySQL allocates ~1–3MB per thread; PostgreSQL forks an OS process consuming ~5–10MB+ per connection, making **PgBouncer** (Transaction Pooling) mandatory in production.
+- **Connection Pool Formula:** Both engines follow the HikariCP rule: \`connections ≈ (CPU Cores × 2) + Spindle Count\`. A 16-core NVMe server peaks at ~33 connections.
+- **MVCC Internals:** MySQL overwrites rows in-place and preserves older column deltas in Undo Log rollback segments; PostgreSQL appends new row versions into the heap tracked by \`xmin\`/\`xmax\` headers and relies on \`autovacuum\` to freeze tuples and avoid 32-bit XID wraparound.
+- **Production Tuning:** MySQL requires dedicating 60–75% RAM to \`innodb_buffer_pool_size\` with \`innodb_flush_method = O_DIRECT\`; PostgreSQL dedicates 25% RAM to \`shared_buffers\` plus \`effective_cache_size\` for the Linux OS page cache, with tuned \`random_page_cost = 1.1\` on NVMe SSDs.`
       }
     ]
   }

@@ -13,6 +13,7 @@ const TransactionsExplorer = lazy(() => import('./TransactionsExplorer'));
 const ConnectionsExplorer = lazy(() => import('./ConnectionsExplorer'));
 const DatabaseGuideRoadmap = lazy(() => import('./DatabaseGuideRoadmap'));
 const DatabaseTutorial = lazy(() => import('./DatabaseTutorial'));
+const DatabaseArchitectureReference = lazy(() => import('./DatabaseArchitectureReference'));
 
 export default function DatabaseView({
   activeEngine: propEngine,
@@ -90,6 +91,13 @@ export default function DatabaseView({
           {activeTab === 'tutorial' && (
             <DatabaseTutorial
               onNavigateToTab={setActiveTab}
+              activeEngine={activeEngine}
+              setActiveEngine={setActiveEngine}
+            />
+          )}
+
+          {(activeTab === 'architecture' || activeTab === 'reference') && (
+            <DatabaseArchitectureReference
               activeEngine={activeEngine}
               setActiveEngine={setActiveEngine}
             />
