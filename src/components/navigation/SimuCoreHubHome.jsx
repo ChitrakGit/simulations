@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Compass
 } from 'lucide-react';
+import LearnBySimulationLogo from '../common/LearnBySimulationLogo';
 
 export default function SimuCoreHubHome({ onSelectTopic }) {
   const topics = [
@@ -125,20 +126,19 @@ export default function SimuCoreHubHome({ onSelectTopic }) {
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '5px 14px',
+            gap: '10px',
+            padding: '6px 16px',
             borderRadius: '20px',
             background: 'rgba(99, 102, 241, 0.18)',
             border: '1px solid rgba(99, 102, 241, 0.4)',
-            fontSize: '0.76rem',
+            fontSize: '0.8rem',
             fontWeight: '700',
             color: '#c7d2fe',
             marginBottom: '18px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em'
+            letterSpacing: '0.02em'
           }}>
-            <Sparkles size={14} color="#a5b4fc" />
-            <span>SimuCore Hub • Dynamic Architectural Platform</span>
+            <LearnBySimulationLogo size={22} />
+            <span>Learn by Simulation • Interactive Systems Platform</span>
           </div>
 
           <h1 style={{

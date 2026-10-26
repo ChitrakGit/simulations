@@ -1,4 +1,4 @@
-# ⚡ SimuCore Hub — Interactive Systems, Docker, Database & Networking Simulator
+# ⚡ Learn by Simulation — Interactive Systems, Docker, Database & Networking Simulator
 
 > An interactive, visual systems-engineering platform that bridges computer science theory—hardware architectures, Linux kernel internals, container runtimes, database storage engines, distributed sharding, and networking stacks—with live, interactive node-based simulators and hands-on learning labs.
 
@@ -12,7 +12,7 @@
 
 ## 🌟 Overview & Key Features
 
-**SimuCore Hub** is built for engineers, system architects, and students who want to understand *how computers, operating systems, databases, and containers actually work under the hood*. Instead of static text or passive videos, every component is rendered as an interactive, stateful simulation.
+**Learn by Simulation** is built for engineers, system architects, and students who want to understand *how computers, operating systems, databases, and containers actually work under the hood*. Instead of static text or passive videos, every component is rendered as an interactive, stateful simulation.
 
 ### 1. 🐳 DockerCore — OS & Container Engine Simulator
 * **Motherboard to Container Visualization**: Inspect how CPU registers, RAM banks, and OS kernel namespaces (`pid`, `net`, `mnt`, `ipc`, `uts`, `user`) work with `cgroups` to enforce resource boundaries.
@@ -116,11 +116,11 @@ npm run lint
 
 ## 🧭 Application URL Routing
 
-SimuCore Hub supports deep linking via hash-based URLs:
+Learn by Simulation supports deep linking via hash-based URLs:
 
 | Route Hash | Module & View |
 |---|---|
-| `#/` | **SimuCore Hub**: Main portal and interactive domain index |
+| `#/` | **Learn by Simulation**: Main portal and interactive domain index |
 | `#/docker` | **DockerCore**: Container architecture, commands & lifecycle |
 | `#/databases/sql` | **DataCore**: MySQL 8.x InnoDB clustered B+Tree engine |
 | `#/databases/postgres` | **DataCore**: PostgreSQL 16.x Heap & MVCC engine |
@@ -177,7 +177,7 @@ simulations/
 │   │   │   └── NetworkingView.jsx
 │   │   ├── os/                         # OS kernel, system calls, virtual memory MMU
 │   │   │   └── OSView.jsx
-│   │   └── navigation/                 # Top-level SimuCore Hub menu & routing
+│   │   └── navigation/                 # Top-level Learn by Simulation menu & routing
 │   │       ├── MainNavigation.jsx
 │   │       └── SimuCoreHubHome.jsx
 │   ├── data/
