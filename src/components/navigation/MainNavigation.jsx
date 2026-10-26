@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   BookOpen
 } from 'lucide-react';
+import LearnBySimulationLogo from '../common/LearnBySimulationLogo';
 
 export default function MainNavigation({
   activeDomain,
@@ -198,7 +199,7 @@ export default function MainNavigation({
         {/* Brand / Logo Hub */}
         <div 
           onClick={() => setActiveDomain(null)}
-          title="Return to SimuCore Hub (Default View)"
+          title="Return to Learn by Simulation (Default View)"
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -210,18 +211,7 @@ export default function MainNavigation({
           onMouseEnter={(e) => e.currentTarget.style.opacity = '0.88'}
           onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(99, 102, 241, 0.4)'
-          }}>
-            <Layers size={20} color="#ffffff" />
-          </div>
+          <LearnBySimulationLogo size={36} />
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -233,7 +223,7 @@ export default function MainNavigation({
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
               }}>
-                SimuCore Hub
+                Learn by Simulation
               </span>
               <span style={{
                 fontSize: '0.62rem',

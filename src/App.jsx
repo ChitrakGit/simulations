@@ -20,7 +20,7 @@ const LLMAgentsView = lazy(() => import('./components/ai/LLMAgentsView'));
 const DatabaseView = lazy(() => import('./components/database/DatabaseView'));
 
 export default function App() {
-  // Top-Level Module Routing: null (SimuCore Hub default view) | 'docker' | 'networking' | 'os' | 'databases'
+  // Top-Level Module Routing: null (Learn by Simulation default view) | 'docker' | 'networking' | 'os' | 'databases'
   const [activeDomain, setActiveDomain] = useState(() => {
     if (typeof window !== 'undefined' && window.location.hash) {
       const cleanHash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
@@ -31,7 +31,7 @@ export default function App() {
       if (primary === 'os' || primary === 'operating-system') return 'os';
       if (primary === 'docker' || primary === 'tools') return 'docker';
     }
-    return null; // By default show only "SimuCore Hub" menu section!
+    return null; // By default show only "Learn by Simulation" menu section!
   });
 
   // Active database engine state: 'sql' | 'postgres' | 'mongodb'
@@ -114,6 +114,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const domainTitles = {
+      docker: 'Docker & Containers — Learn by Simulation',
+      networking: 'Networking & Distributed Systems — Learn by Simulation',
+      os: 'Operating Systems & Hardware — Learn by Simulation',
+      databases: 'Databases & Distributed Sharding — Learn by Simulation',
+      'llm-agents': 'AI & LLM Workflows — Learn by Simulation',
+    };
+    if (activeDomain && domainTitles[activeDomain]) {
+      document.title = domainTitles[activeDomain];
+    } else {
+      document.title = 'Learn by Simulation — Interactive Systems, Architecture & Engineering Platform';
+    }
+
     if (activeDomain === 'networking') {
       window.location.hash = 'networking';
     } else if (activeDomain === 'docker') {
@@ -385,7 +398,7 @@ export default function App() {
           <div>
             {activeDomain === null && (
               <span>
-                <strong>SimuCore Hub Engineering Platform</strong> — Modular dynamic execution environment with on-demand component rendering.
+                <strong>Learn by Simulation Platform</strong> — Modular dynamic execution environment with on-demand component rendering.
               </span>
             )}
             {activeDomain === 'docker' && (
