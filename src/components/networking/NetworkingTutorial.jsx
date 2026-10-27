@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import BandwidthLatencyCalculator from './BandwidthLatencyCalculator';
 import {
   BookOpen,
   Terminal,
@@ -28,11 +29,6 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
   const [completedChapters, setCompletedChapters] = useState({ 'ch-1': true });
 
   // Interactive Chapter Widgets State
-  // Ch 1: Bandwidth / Latency calculator
-  const [calcBandwidthMbps, setCalcBandwidthMbps] = useState(100);
-  const [calcLatencyMs, setCalcLatencyMs] = useState(30);
-  const [calcFileSizeMb, setCalcFileSizeMb] = useState(50);
-
   // Ch 2: Topology Switcher
   const [selectedTopology, setSelectedTopology] = useState('spine-leaf');
 
@@ -60,12 +56,25 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
   // Ch 12: Security attack selector
   const [selectedAttack, setSelectedAttack] = useState('arp-spoof');
 
+  // Ch 14: BGP Best Path
+  const [bgpWeightA, setBgpWeightA] = useState(0);
+  const [bgpWeightB, setBgpWeightB] = useState(0);
+  const [bgpLocalPrefA, setBgpLocalPrefA] = useState(100);
+  const [bgpLocalPrefB, setBgpLocalPrefB] = useState(100);
+  const [bgpAsPathHopsA, setBgpAsPathHopsA] = useState(3);
+  const [bgpAsPathHopsB, setBgpAsPathHopsB] = useState(2);
+  const [bgpTypeA, setBgpTypeA] = useState('eBGP');
+  const [bgpTypeB, setBgpTypeB] = useState('eBGP');
+
   // Ch 15: STP root election
   const [switchPriorityA, setSwitchPriorityA] = useState(32768);
   const [switchPriorityB, setSwitchPriorityB] = useState(4096);
 
   // Ch 17: Nines availability slider
   const [availabilityPct, setAvailabilityPct] = useState(99.99);
+
+  // Ch 20: Docker Network Driver
+  const [selectedDockerDriver, setSelectedDockerDriver] = useState('bridge');
 
   // Ch 21: Troubleshooting Symptom
   const [selectedSymptom, setSelectedSymptom] = useState('apipa');
@@ -92,17 +101,99 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
     setExpandedChapter(null);
   };
 
-  // Helper for IPv6 zero-compression display
+  // RFC 5952 IPv6 zero-compression display
   const compressIPv6 = (ip) => {
     try {
-      const parts = ip.split(':').map(p => p.replace(/^0+/, '') || '0');
-      const joined = parts.join(':');
-      // replace longest run of :0: with ::
-      return joined.replace(/(?:^|:)0(?::0)+(?::|$)/, '::');
+      const trimmed = ip.trim();
+      if (!trimmed) return '';
+      let parts = trimmed.split(':');
+      if (parts.length > 8) return trimmed;
+      parts = parts.map(p => p.replace(/^0+/, '') || '0');
+      
+      let maxStart = -1, maxLength = 0, curStart = -1, curLength = 0;
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i] === '0') {
+          if (curStart === -1) { curStart = i; curLength = 1; }
+          else { curLength++; }
+          if (curLength > maxLength && curLength >= 2) {
+            maxStart = curStart;
+            maxLength = curLength;
+          }
+        } else {
+          curStart = -1; curLength = 0;
+        }
+      }
+
+      if (maxStart !== -1) {
+        const before = parts.slice(0, maxStart).join(':');
+        const after = parts.slice(maxStart + maxLength).join(':');
+        if (!before && !after) return '::';
+        if (!before) return `::${after}`;
+        if (!after) return `${before}::`;
+        return `${before}::${after}`;
+      }
+      return parts.join(':');
     } catch {
       return ip;
     }
   };
+
+  // Ch 8: Routing Table & Longest Prefix Match Evaluator
+  const ROUTING_TABLE = useMemo(() => [
+    { prefix: '10.1.5.0/24', net: '10.1.5.0', mask: 24, nextHop: '10.1.5.1', iface: 'eth0', proto: 'OSPF' },
+    { prefix: '10.1.0.0/16', net: '10.1.0.0', mask: 16, nextHop: '192.168.1.3', iface: 'eth0', proto: 'OSPF' },
+    { prefix: '10.0.0.0/8', net: '10.0.0.0', mask: 8, nextHop: '10.254.0.1', iface: 'eth1', proto: 'Static' },
+    { prefix: '172.16.0.0/12', net: '172.16.0.0', mask: 12, nextHop: '172.16.0.1', iface: 'eth2', proto: 'EIGRP' },
+    { prefix: '192.168.1.0/24', net: '192.168.1.0', mask: 24, nextHop: 'Directly Connected', iface: 'eth3', proto: 'Connected' },
+    { prefix: '0.0.0.0/0', net: '0.0.0.0', mask: 0, nextHop: '192.168.1.1 (Gateway)', iface: 'eth3', proto: 'Default' }
+  ], []);
+
+  const lpmEvaluation = useMemo(() => {
+    try {
+      const octets = testIpForRoute.trim().split('.').map(o => parseInt(o, 10));
+      if (octets.length !== 4 || octets.some(o => isNaN(o) || o < 0 || o > 255)) {
+        return { winner: null, candidates: [], error: 'Invalid IPv4 address format (e.g. 10.1.5.24)' };
+      }
+      const ipInt = ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
+
+      const candidates = ROUTING_TABLE.filter(r => {
+        let maskInt = 0;
+        for (let i = 0; i < r.mask; i++) {
+          maskInt |= (1 << (31 - i));
+        }
+        maskInt = maskInt >>> 0;
+        const netOctets = r.net.split('.').map(o => parseInt(o, 10));
+        const netInt = ((netOctets[0] << 24) | (netOctets[1] << 16) | (netOctets[2] << 8) | netOctets[3]) >>> 0;
+        return (ipInt & maskInt) === (netInt & maskInt);
+      });
+
+      candidates.sort((a, b) => b.mask - a.mask);
+      return { winner: candidates[0] || null, candidates, error: null };
+    } catch {
+      return { winner: null, candidates: [], error: 'Parsing error' };
+    }
+  }, [testIpForRoute, ROUTING_TABLE]);
+
+  // Ch 14: BGP Best Path Decision Engine
+  const bgpDecision = useMemo(() => {
+    if (bgpWeightA !== bgpWeightB) {
+      const winner = bgpWeightA > bgpWeightB ? 'Path A' : 'Path B';
+      return { winner, step: 'Step 1: Highest Weight', reason: `${winner} has higher Cisco weight (${Math.max(bgpWeightA, bgpWeightB)} vs ${Math.min(bgpWeightA, bgpWeightB)})` };
+    }
+    if (bgpLocalPrefA !== bgpLocalPrefB) {
+      const winner = bgpLocalPrefA > bgpLocalPrefB ? 'Path A' : 'Path B';
+      return { winner, step: 'Step 2: Highest Local Preference', reason: `${winner} has higher Local Preference (${Math.max(bgpLocalPrefA, bgpLocalPrefB)} vs ${Math.min(bgpLocalPrefA, bgpLocalPrefB)})` };
+    }
+    if (bgpAsPathHopsA !== bgpAsPathHopsB) {
+      const winner = bgpAsPathHopsA < bgpAsPathHopsB ? 'Path A' : 'Path B';
+      return { winner, step: 'Step 4: Shortest AS_PATH', reason: `${winner} has fewer Autonomous System hops (${Math.min(bgpAsPathHopsA, bgpAsPathHopsB)} hops vs ${Math.max(bgpAsPathHopsA, bgpAsPathHopsB)} hops)` };
+    }
+    if (bgpTypeA !== bgpTypeB) {
+      const winner = bgpTypeA === 'eBGP' ? 'Path A' : 'Path B';
+      return { winner, step: 'Step 7: Prefer eBGP over iBGP', reason: `${winner} is eBGP (external peering preferred over internal transit)` };
+    }
+    return { winner: 'Tie', step: 'Step 8/9: Tie Breaker', reason: 'Equal across primary metrics; tie broken by lowest Router ID or lowest neighbor IP.' };
+  }, [bgpWeightA, bgpWeightB, bgpLocalPrefA, bgpLocalPrefB, bgpAsPathHopsA, bgpAsPathHopsB, bgpTypeA, bgpTypeB]);
 
   // Ch 17: Calculate downtime per year
   const calculatedDowntime = useMemo(() => {
@@ -187,93 +278,8 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
             ))}
           </div>
 
-          {/* Interactive Widget: Bandwidth & Latency Calculator */}
-          <div style={{
-            padding: '16px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(0, 0, 0, 0.5) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <Zap size={16} color="#34d399" />
-              <strong style={{ fontSize: '0.86rem', color: '#34d399' }}>Interactive Widget: Bandwidth, Latency &amp; Transfer Time Calculator</strong>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '12px' }}>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: 'var(--text-dim)', marginBottom: '4px' }}>
-                  <span>Link Bandwidth:</span>
-                  <span style={{ color: '#38bdf8', fontWeight: '700' }}>{calcBandwidthMbps} Mbps</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="1000"
-                  step="10"
-                  value={calcBandwidthMbps}
-                  onChange={(e) => setCalcBandwidthMbps(parseInt(e.target.value, 10))}
-                  style={{ width: '100%', accentColor: '#38bdf8', cursor: 'pointer' }}
-                />
-              </div>
-
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: 'var(--text-dim)', marginBottom: '4px' }}>
-                  <span>Round-Trip Latency:</span>
-                  <span style={{ color: '#fbbf24', fontWeight: '700' }}>{calcLatencyMs} ms</span>
-                </div>
-                <input
-                  type="range"
-                  min="2"
-                  max="300"
-                  value={calcLatencyMs}
-                  onChange={(e) => setCalcLatencyMs(parseInt(e.target.value, 10))}
-                  style={{ width: '100%', accentColor: '#fbbf24', cursor: 'pointer' }}
-                />
-              </div>
-
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: 'var(--text-dim)', marginBottom: '4px' }}>
-                  <span>File Size:</span>
-                  <span style={{ color: '#a855f7', fontWeight: '700' }}>{calcFileSizeMb} MB</span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="500"
-                  step="5"
-                  value={calcFileSizeMb}
-                  onChange={(e) => setCalcFileSizeMb(parseInt(e.target.value, 10))}
-                  style={{ width: '100%', accentColor: '#a855f7', cursor: 'pointer' }}
-                />
-              </div>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-around',
-              flexWrap: 'wrap',
-              gap: '12px',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              background: 'rgba(0, 0, 0, 0.4)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.76rem'
-            }}>
-              <div>
-                <span style={{ color: 'var(--text-dim)' }}>Pure Serialization Time: </span>
-                <span style={{ color: '#38bdf8', fontWeight: '700' }}>{((calcFileSizeMb * 8) / calcBandwidthMbps).toFixed(2)} sec</span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-dim)' }}>BDP (In-Flight Buffer): </span>
-                <span style={{ color: '#34d399', fontWeight: '700' }}>{((calcBandwidthMbps * 1e6 * (calcLatencyMs / 1000)) / (8 * 1024)).toFixed(0)} KB</span>
-              </div>
-              <div>
-                <span style={{ color: 'var(--text-dim)' }}>User-Perceived Time: </span>
-                <span style={{ color: '#f59e0b', fontWeight: '700' }}>{(((calcFileSizeMb * 8) / calcBandwidthMbps) + (calcLatencyMs / 1000 * 3)).toFixed(2)} sec</span>
-              </div>
-            </div>
-          </div>
+          {/* Interactive Widget: Bandwidth, Latency & Transfer Time Calculator */}
+          <BandwidthLatencyCalculator />
         </div>
       )
     },
@@ -625,16 +631,39 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
                   fontFamily: 'var(--font-mono)'
                 }}
               />
+            </div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
               <button
-                onClick={() => setIpv6Input('2001:0db8:0000:0000:0000:0000:0000:0001')}
+                onClick={() => setIpv6Input('0000:0000:0000:0000:0000:0000:0000:0001')}
                 className="btn btn-secondary"
-                style={{ fontSize: '0.7rem' }}
+                style={{ fontSize: '0.68rem', padding: '2px 8px' }}
               >
-                Sample ::1
+                Loopback (::1)
+              </button>
+              <button
+                onClick={() => setIpv6Input('ff02:0000:0000:0000:0000:0000:0000:0001')}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.68rem', padding: '2px 8px' }}
+              >
+                All-Nodes (ff02::1)
+              </button>
+              <button
+                onClick={() => setIpv6Input('fe80:0000:0000:0000:0202:b3ff:fe1e:8329')}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.68rem', padding: '2px 8px' }}
+              >
+                Link-Local (fe80::)
+              </button>
+              <button
+                onClick={() => setIpv6Input('2001:0db8:0000:0000:0000:ff00:0042:8329')}
+                className="btn btn-secondary"
+                style={{ fontSize: '0.68rem', padding: '2px 8px' }}
+              >
+                Documentation (2001:db8::)
               </button>
             </div>
             <div style={{ fontSize: '0.74rem', color: '#cbd5e1', fontFamily: 'var(--font-mono)' }}>
-              Compressed Shorthand: <strong style={{ color: '#34d399' }}>{compressIPv6(ipv6Input)}</strong>
+              RFC 5952 Shorthand: <strong style={{ color: '#34d399', fontSize: '0.86rem' }}>{compressIPv6(ipv6Input)}</strong>
             </div>
           </div>
         </div>
@@ -803,7 +832,7 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
                 type="text"
                 value={testIpForRoute}
                 onChange={(e) => setTestIpForRoute(e.target.value)}
-                placeholder="10.1.5.24"
+                placeholder="e.g. 10.1.5.24"
                 style={{
                   flex: 1,
                   background: 'rgba(0, 0, 0, 0.5)',
@@ -815,20 +844,79 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
                   fontFamily: 'var(--font-mono)'
                 }}
               />
-              <button
-                onClick={() => setTestIpForRoute('10.1.200.5')}
-                className="btn btn-secondary"
-                style={{ fontSize: '0.7rem' }}
-              >
-                Sample 10.1.x
-              </button>
             </div>
-            <div style={{ fontSize: '0.74rem', color: '#cbd5e1', lineHeight: '1.5' }}>
-              Matched Route in Table: <strong style={{ color: '#34d399' }}>10.1.0.0/16 via 192.168.1.3 (eth0)</strong><br />
-              <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)' }}>
-                Rule: /16 (16-bit match) is more specific than 10.0.0.0/8 (8-bit match) and 0.0.0.0/0 (0-bit match). Longest prefix always wins!
-              </span>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
+              <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', alignSelf: 'center' }}>Test IPs:</span>
+              {[
+                { ip: '10.1.5.24', label: '10.1.5.24 (/24)' },
+                { ip: '10.1.200.5', label: '10.1.200.5 (/16)' },
+                { ip: '10.88.1.1', label: '10.88.1.1 (/8)' },
+                { ip: '172.20.1.5', label: '172.20.1.5 (/12)' },
+                { ip: '192.168.1.45', label: '192.168.1.45 (/24)' },
+                { ip: '8.8.8.8', label: '8.8.8.8 (/0)' }
+              ].map(s => (
+                <button
+                  key={s.ip}
+                  onClick={() => setTestIpForRoute(s.ip)}
+                  className="btn btn-secondary"
+                  style={{ fontSize: '0.68rem', padding: '2px 8px' }}
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
+
+            {lpmEvaluation.error ? (
+              <div style={{ color: '#f87171', fontSize: '0.74rem' }}>{lpmEvaluation.error}</div>
+            ) : lpmEvaluation.winner ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  border: '1px solid rgba(16, 185, 129, 0.35)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '8px'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: '#6ee7b7' }}>WINNING ROUTE (Longest Subnet Mask):</div>
+                    <div style={{ fontSize: '0.94rem', fontWeight: '800', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                      {lpmEvaluation.winner.prefix} &rarr; via {lpmEvaluation.winner.nextHop} ({lpmEvaluation.winner.iface})
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.66rem', padding: '2px 6px', borderRadius: '4px', background: '#059669', color: '#ffffff', fontWeight: '700' }}>
+                    {lpmEvaluation.winner.proto}
+                  </span>
+                </div>
+
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
+                  All Matching Table Entries ({lpmEvaluation.candidates.length}):
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+                  {lpmEvaluation.candidates.map((c, idx) => (
+                    <div
+                      key={c.prefix}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        background: idx === 0 ? 'rgba(52, 211, 153, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                        borderLeft: idx === 0 ? '3px solid #34d399' : '3px solid transparent'
+                      }}
+                    >
+                      <span style={{ color: idx === 0 ? '#34d399' : '#cbd5e1' }}>{c.prefix}</span>
+                      <span style={{ color: 'var(--text-dim)' }}>{idx === 0 ? '★ Selected (Most Specific)' : 'Subordinate Match'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{ color: 'var(--text-dim)', fontSize: '0.74rem' }}>No matching route found.</div>
+            )}
           </div>
 
           <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.4)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#cbd5e1' }}>
@@ -1154,17 +1242,136 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
             <strong>BGP (Border Gateway Protocol)</strong> powers the entire global internet. When a router receives multiple paths to a destination IP prefix, it runs the standardized <strong>BGP Best-Path Decision Algorithm</strong>:
           </p>
 
-          <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(0, 0, 0, 0.45)', border: '1px solid rgba(168, 85, 247, 0.3)', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: '#cbd5e1', lineHeight: '1.6' }}>
-            <strong style={{ color: '#c084fc' }}>BGP Best-Path Order:</strong><br />
-            1. Highest <strong>Weight</strong> (Cisco proprietary)<br />
-            2. Highest <strong>Local Preference</strong> (default 100)<br />
-            3. Locally originated route<br />
-            4. Shortest <strong>AS_PATH</strong> (fewest AS hops)<br />
-            5. Lowest <strong>Origin</strong> (IGP &lt; EGP &lt; Incomplete)<br />
-            6. Lowest <strong>MED</strong> (Multi-Exit Discriminator)<br />
-            7. Prefer <strong>eBGP</strong> over iBGP<br />
-            8. Lowest IGP metric to BGP next-hop<br />
-            9. Lowest Router ID
+          {/* Interactive BGP Best-Path Decision Simulator */}
+          <div style={{
+            padding: '14px 16px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(0, 0, 0, 0.5) 100%)',
+            border: '1px solid rgba(168, 85, 247, 0.35)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+              <strong style={{ fontSize: '0.84rem', color: '#c084fc' }}>
+                Interactive BGP Best-Path Decision Simulator: Path A vs Path B
+              </strong>
+              <span style={{ fontSize: '0.74rem', fontWeight: '700', color: bgpDecision.winner === 'Path A' ? '#38bdf8' : bgpDecision.winner === 'Path B' ? '#34d399' : '#fbbf24' }}>
+                Winning Route: {bgpDecision.winner}
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+              {/* Path A */}
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                <strong style={{ color: '#38bdf8', fontSize: '0.78rem' }}>Route Path A (via ISP-1)</strong>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px', fontSize: '0.72rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>Weight:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="65535"
+                      value={bgpWeightA}
+                      onChange={(e) => setBgpWeightA(parseInt(e.target.value, 10) || 0)}
+                      style={{ width: '56px', background: '#000', color: '#38bdf8', border: '1px solid #38bdf855', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>Local Pref:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="1000"
+                      value={bgpLocalPrefA}
+                      onChange={(e) => setBgpLocalPrefA(parseInt(e.target.value, 10) || 0)}
+                      style={{ width: '56px', background: '#000', color: '#38bdf8', border: '1px solid #38bdf855', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>AS Path Hops:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={bgpAsPathHopsA}
+                      onChange={(e) => setBgpAsPathHopsA(parseInt(e.target.value, 10) || 1)}
+                      style={{ width: '56px', background: '#000', color: '#38bdf8', border: '1px solid #38bdf855', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>Peer Type:</span>
+                    <select
+                      value={bgpTypeA}
+                      onChange={(e) => setBgpTypeA(e.target.value)}
+                      style={{ background: '#000', color: '#38bdf8', border: '1px solid #38bdf855', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    >
+                      <option value="eBGP">eBGP</option>
+                      <option value="iBGP">iBGP</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Path B */}
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(52, 211, 153, 0.06)', border: '1px solid rgba(52, 211, 153, 0.2)' }}>
+                <strong style={{ color: '#34d399', fontSize: '0.78rem' }}>Route Path B (via ISP-2)</strong>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px', fontSize: '0.72rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>Weight:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="65535"
+                      value={bgpWeightB}
+                      onChange={(e) => setBgpWeightB(parseInt(e.target.value, 10) || 0)}
+                      style={{ width: '56px', background: '#000', color: '#34d399', border: '1px solid #34d39955', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>Local Pref:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="1000"
+                      value={bgpLocalPrefB}
+                      onChange={(e) => setBgpLocalPrefB(parseInt(e.target.value, 10) || 0)}
+                      style={{ width: '56px', background: '#000', color: '#34d399', border: '1px solid #34d39955', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>AS Path Hops:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={bgpAsPathHopsB}
+                      onChange={(e) => setBgpAsPathHopsB(parseInt(e.target.value, 10) || 1)}
+                      style={{ width: '56px', background: '#000', color: '#34d399', border: '1px solid #34d39955', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-dim)' }}>Peer Type:</span>
+                    <select
+                      value={bgpTypeB}
+                      onChange={(e) => setBgpTypeB(e.target.value)}
+                      style={{ background: '#000', color: '#34d399', border: '1px solid #34d39955', borderRadius: '4px', padding: '1px 4px', fontSize: '0.72rem' }}
+                    >
+                      <option value="eBGP">eBGP</option>
+                      <option value="iBGP">iBGP</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              background: 'rgba(0, 0, 0, 0.4)',
+              borderLeft: '3px solid #c084fc',
+              fontSize: '0.74rem',
+              color: '#cbd5e1'
+            }}>
+              <strong style={{ color: '#c084fc' }}>Decision Reason ({bgpDecision.step}):</strong> {bgpDecision.reason}
+            </div>
           </div>
         </div>
       )
@@ -1369,51 +1576,82 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
             • <strong>Zero Trust Architecture (ZTNA):</strong> "Never trust, always verify". Replaces perimeter corporate VPNs with identity-authenticated microsegmentation and mTLS service meshes (Istio).
           </div>
 
-          {/* The Complete Set of Built-in Docker Network Drivers Table */}
+          {/* The Complete Set of Built-in Docker Network Drivers Interactive Explorer */}
           <div style={{
             padding: '14px 16px',
             borderRadius: '10px',
             background: 'rgba(0, 0, 0, 0.45)',
             border: '1px solid rgba(14, 165, 233, 0.3)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
               <strong style={{ fontSize: '0.84rem', color: '#38bdf8' }}>
-                The Complete Set of Built-in Docker Network Drivers
+                Interactive Docker Network Drivers Architecture Explorer
               </strong>
-              <span style={{ fontSize: '0.64rem', padding: '1px 6px', borderRadius: '4px', background: 'rgba(14, 165, 233, 0.2)', color: '#38bdf8', fontWeight: '700' }}>
-                Docker Engine
-              </span>
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                {['bridge', 'host', 'none', 'overlay', 'macvlan', 'ipvlan'].map(drv => (
+                  <button
+                    key={drv}
+                    onClick={() => setSelectedDockerDriver(drv)}
+                    style={{
+                      padding: '3px 8px',
+                      borderRadius: '5px',
+                      fontSize: '0.7rem',
+                      fontFamily: 'var(--font-mono)',
+                      fontWeight: selectedDockerDriver === drv ? '700' : '500',
+                      background: selectedDockerDriver === drv ? '#0ea5e9' : 'rgba(255, 255, 255, 0.06)',
+                      color: selectedDockerDriver === drv ? '#ffffff' : '#cbd5e1',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {drv}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem', fontFamily: 'var(--font-mono)' }}>
-                <thead>
-                  <tr style={{ background: 'rgba(255, 255, 255, 0.05)', textAlign: 'left', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <th style={{ padding: '8px 10px', color: '#38bdf8' }}>Driver</th>
-                    <th style={{ padding: '8px 10px', color: '#cbd5e1' }}>Primary Use Case</th>
-                    <th style={{ padding: '8px 10px', color: '#34d399' }}>Network Isolation</th>
-                    <th style={{ padding: '8px 10px', color: '#fbbf24' }}>Routing Method</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { driver: 'bridge', useCase: 'Standalone containers on a single host.', isolation: 'High (Internal private subnet).', routing: 'NAT / Port mapping.' },
-                    { driver: 'host', useCase: 'Maximum raw network performance.', isolation: 'None (Shares host network stack).', routing: 'Direct host ports.' },
-                    { driver: 'none', useCase: 'Completely isolated tasks/batch jobs.', isolation: 'Absolute isolation.', routing: 'Loopback interface only.' },
-                    { driver: 'overlay', useCase: 'Multi-host routing & Swarm clusters.', isolation: 'High (Encrypted virtual network).', routing: 'VXLAN tunnel across hosts.' },
-                    { driver: 'macvlan', useCase: 'Legacy apps needing direct physical network access.', isolation: 'Low (Visible as physical devices).', routing: 'Unique MAC assigned to each container.' },
-                    { driver: 'ipvlan', useCase: 'High-density spaces where MAC addresses are limited.', isolation: 'Low (Shares parent MAC).', routing: 'Unique IP assigned directly to container.' }
-                  ].map(row => (
-                    <tr key={row.driver} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '8px 10px', color: '#38bdf8', fontWeight: '700' }}><code>{row.driver}</code></td>
-                      <td style={{ padding: '8px 10px', color: '#cbd5e1' }}>{row.useCase}</td>
-                      <td style={{ padding: '8px 10px', color: '#34d399' }}>{row.isolation}</td>
-                      <td style={{ padding: '8px 10px', color: '#fbbf24' }}>{row.routing}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {selectedDockerDriver === 'bridge' && (
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.25)', fontSize: '0.74rem', color: '#e2e8f0', lineHeight: '1.5' }}>
+                <strong style={{ color: '#38bdf8' }}>Bridge Driver (Default):</strong> Creates virtual ethernet pairs (<code style={{ color: '#fbbf24' }}>veth</code>) connecting container namespace to Linux software bridge <code style={{ color: '#fbbf24' }}>docker0</code> (172.17.0.0/16). Outbound internet is NATted via iptables MASQUERADE.<br />
+                <code style={{ display: 'block', marginTop: '4px', color: '#34d399', background: 'rgba(0, 0, 0, 0.4)', padding: '4px 8px', borderRadius: '4px' }}>
+                  $ docker network create --driver bridge my-isolated-net
+                </code>
+              </div>
+            )}
+            {selectedDockerDriver === 'host' && (
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.25)', fontSize: '0.74rem', color: '#e2e8f0', lineHeight: '1.5' }}>
+                <strong style={{ color: '#38bdf8' }}>Host Driver:</strong> Bypasses container network virtualization completely. Container shares the host's network namespace directly with zero NAT overhead. Port collisions apply on the host interface.<br />
+                <code style={{ display: 'block', marginTop: '4px', color: '#34d399', background: 'rgba(0, 0, 0, 0.4)', padding: '4px 8px', borderRadius: '4px' }}>
+                  $ docker run --net=host -d nginx
+                </code>
+              </div>
+            )}
+            {selectedDockerDriver === 'overlay' && (
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.25)', fontSize: '0.74rem', color: '#e2e8f0', lineHeight: '1.5' }}>
+                <strong style={{ color: '#38bdf8' }}>Overlay Driver (Multi-Host Swarm):</strong> Encapsulates L2 container packets into L3 UDP datagrams over port 4789 using <strong>VXLAN</strong> tunnels, enabling transparent inter-host container routing across separate physical servers.<br />
+                <code style={{ display: 'block', marginTop: '4px', color: '#34d399', background: 'rgba(0, 0, 0, 0.4)', padding: '4px 8px', borderRadius: '4px' }}>
+                  $ docker network create -d overlay --attachable swarm-mesh
+                </code>
+              </div>
+            )}
+            {selectedDockerDriver === 'macvlan' && (
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.25)', fontSize: '0.74rem', color: '#e2e8f0', lineHeight: '1.5' }}>
+                <strong style={{ color: '#38bdf8' }}>Macvlan Driver:</strong> Assigns a unique, dedicated physical MAC address to each container interface. Containers appear directly on the physical switch LAN with their own IP on the router's subnet.<br />
+                <code style={{ display: 'block', marginTop: '4px', color: '#34d399', background: 'rgba(0, 0, 0, 0.4)', padding: '4px 8px', borderRadius: '4px' }}>
+                  $ docker network create -d macvlan --subnet=192.168.1.0/24 -o parent=eth0 physical-lan
+                </code>
+              </div>
+            )}
+            {selectedDockerDriver === 'none' && (
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.25)', fontSize: '0.74rem', color: '#e2e8f0', lineHeight: '1.5' }}>
+                <strong style={{ color: '#38bdf8' }}>None Driver (Zero Network):</strong> Disables all network stacks. Container receives only a loopback interface (`lo`). Ideal for air-gapped cryptographic processing, batch jobs, and offline tasks.
+              </div>
+            )}
+            {selectedDockerDriver === 'ipvlan' && (
+              <div style={{ padding: '10px', borderRadius: '8px', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.25)', fontSize: '0.74rem', color: '#e2e8f0', lineHeight: '1.5' }}>
+                <strong style={{ color: '#38bdf8' }}>IPvlan Driver:</strong> Similar to Macvlan but all containers share the parent physical interface's MAC address with unique IPs. Avoids MAC address table exhaustion on enterprise switches.
+              </div>
+            )}
           </div>
         </div>
       )
@@ -1522,20 +1760,18 @@ export default function NetworkingTutorial({ onNavigateToSimulator }) {
   ];
 
   // Filtered chapters based on level, widget, and search query
-  const filteredChapters = useMemo(() => {
-    return chapters.filter(ch => {
-      if (activeLevel === 'widgets' && !ch.hasWidget) return false;
-      if (activeLevel !== 'all' && activeLevel !== 'widgets' && ch.level !== activeLevel) return false;
-      if (searchQuery.trim() !== '') {
-        const q = searchQuery.toLowerCase();
-        const matchTitle = ch.title.toLowerCase().includes(q);
-        const matchSummary = ch.summary.toLowerCase().includes(q);
-        const matchTags = ch.tags.some(t => t.toLowerCase().includes(q));
-        return matchTitle || matchSummary || matchTags;
-      }
-      return true;
-    });
-  }, [activeLevel, searchQuery]);
+  const filteredChapters = chapters.filter(ch => {
+    if (activeLevel === 'widgets' && !ch.hasWidget) return false;
+    if (activeLevel !== 'all' && activeLevel !== 'widgets' && ch.level !== activeLevel) return false;
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      const matchTitle = ch.title.toLowerCase().includes(q);
+      const matchSummary = ch.summary.toLowerCase().includes(q);
+      const matchTags = ch.tags.some(t => t.toLowerCase().includes(q));
+      return matchTitle || matchSummary || matchTags;
+    }
+    return true;
+  });
 
   const completedCount = Object.values(completedChapters).filter(Boolean).length;
 

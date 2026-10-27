@@ -28,7 +28,7 @@ export const NETWORKING_SUBTABS = [
   { id: 'osi', serial: '07', label: 'OSI & TCP/IP 7 Layers', icon: Layers, badge: 'Encapsulation', desc: 'Protocol Data Units, header encapsulation and layer responsibilities' },
   { id: 'protocols', serial: '08', label: 'Protocols Explorer', icon: Radio, badge: 'TCP/DNS/ARP', desc: 'Deep dive into fundamental network protocols and packet headers' },
   { id: 'terminal', serial: '09', label: 'Network CLI Sandbox', icon: Terminal, badge: 'ping/dig', desc: 'Real-time network diagnostic CLI utilities with simulated output' },
-  { id: 'subnet', serial: '10', label: 'Subnet & CIDR Guide', icon: Sliders, badge: 'Calculator', desc: 'IPv4 subnet calculations, netmasks, CIDR prefixes & host capacities' },
+  { id: 'subnet', serial: '10', label: 'Calculators & Subnet', icon: Sliders, badge: 'Calculators', desc: 'IPv4 subnetting & CIDR masks, plus Bandwidth, Latency & Transfer Time calculator' },
   { id: 'ports', serial: '11', label: 'Ports & SG Rules', icon: Shield, badge: '28 Protocols', isPorts: true, desc: 'AWS Security Group rules, port ranges & modal inspector' }
 ];
 

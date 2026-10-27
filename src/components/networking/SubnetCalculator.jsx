@@ -1,13 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { SUBNET_PRESETS } from '../../data/networkingData';
+import BandwidthLatencyCalculator from './BandwidthLatencyCalculator';
 import {
   Sliders,
   Binary,
   Network,
-  Box
+  Box,
+  Zap
 } from 'lucide-react';
 
 export default function SubnetCalculator() {
+  const [activeCalculator, setActiveCalculator] = useState('subnet'); // 'subnet' | 'bandwidth'
   const [ipInput, setIpInput] = useState('192.168.1.0');
   const [selectedCidr, setSelectedCidr] = useState(24);
 
@@ -76,6 +79,64 @@ export default function SubnetCalculator() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Calculator Engine Mode Switcher Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '6px',
+        borderRadius: '12px',
+        background: 'rgba(15, 23, 42, 0.75)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        width: 'fit-content',
+        flexWrap: 'wrap'
+      }}>
+        <button
+          onClick={() => setActiveCalculator('subnet')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            background: activeCalculator === 'subnet' ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
+            border: activeCalculator === 'subnet' ? '1px solid #f59e0b' : 'none',
+            color: activeCalculator === 'subnet' ? '#fbbf24' : 'var(--text-dim)',
+            fontSize: '0.8rem',
+            fontWeight: '700',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Sliders size={16} />
+          IPv4 Subnet &amp; CIDR Calculator
+        </button>
+        <button
+          onClick={() => setActiveCalculator('bandwidth')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            background: activeCalculator === 'bandwidth' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+            border: activeCalculator === 'bandwidth' ? '1px solid #10b981' : 'none',
+            color: activeCalculator === 'bandwidth' ? '#34d399' : 'var(--text-dim)',
+            fontSize: '0.8rem',
+            fontWeight: '700',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Zap size={16} />
+          Bandwidth, Latency &amp; Transfer Time Calculator
+        </button>
+      </div>
+
+      {activeCalculator === 'bandwidth' ? (
+        <BandwidthLatencyCalculator />
+      ) : (
+        <>
       {/* Top Banner */}
       <div className="glass-panel" style={{
         padding: '20px',
@@ -353,6 +414,8 @@ export default function SubnetCalculator() {
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }
